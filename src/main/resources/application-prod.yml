@@ -22,7 +22,7 @@ logging:
         SQL: debug
         type.descriptor.sql: trace
 
-discord:
-  webhook:
-    url: https://discord.com/api/webhooks
-    error-channel-path: /1327861532406583297/25safmzXPrJpNG6yTWKgGCTVW775XhMGseU0gLkHKGDoXWnnlLKtxhjvDzcFQ4Jp_Bg2
+biz:
+  notification-channel:
+    error-message: # 필요
+    invalid-question: # 필요

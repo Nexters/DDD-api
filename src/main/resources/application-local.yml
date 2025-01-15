@@ -22,7 +22,11 @@ logging:
         SQL: debug
         type.descriptor.sql: trace
 
-discord:
-  webhook:
-    url: https://discord.com/api/webhooks
-    error-channel-path: /1327866249559933051/sjsfAlTx0VxSPjD5FIwje9FAudDHVpdKZ_TZAFcaaiLSG9cWT1fCvRtcEnyD71-YuYNj
+biz:
+  notification-channel:
+    error-message: https://discord.com/api/webhooks/1327866249559933051/sjsfAlTx0VxSPjD5FIwje9FAudDHVpdKZ_TZAFcaaiLSG9cWT1fCvRtcEnyD71-YuYNj
+    invalid-question: https://discord.com/api/webhooks/1329047694945288274/bFzn7R-Hq8ketoRYAfcNGui9NliW5NgZhGvo1ohEUfsqvxk1dR9NaWxt8OFq4FHxb1Af
+
+external:
+  ai-server:
+    domain: http://localhost:8080
