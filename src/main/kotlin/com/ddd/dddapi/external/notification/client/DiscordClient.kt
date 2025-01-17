@@ -1,6 +1,5 @@
 package com.ddd.dddapi.external.notification.client
 
-import com.ddd.dddapi.external.dto.*
 import com.ddd.dddapi.external.notification.dto.*
 import com.ddd.dddapi.external.notification.properties.BizNotificationProperties
 import org.springframework.http.HttpHeaders
