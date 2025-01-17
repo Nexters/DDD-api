@@ -20,24 +20,25 @@ class TarotChatMessageEntity(
     val chatRoom: TarotChatRoomEntity,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "message_type", nullable = false)
+    @Column(name = "message_type", nullable = false, columnDefinition = "VARCHAR(50)")
     val messageType: MessageType,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "sender_type", nullable = false)
+    @Column(name = "sender_type", nullable = false, columnDefinition = "VARCHAR(50)")
     val senderType: MessageSender,
 
     @Column(name = "message", nullable = false)
     val message: String,
 
-    @Comment("메시지를 보낸 사용자, SYSTEM 메세지의 경우 null")
+    @Comment("메시지를 보낸 사용자, MessageSender == SYSTEM 일 경우 null")
     @JoinColumn(name = "sender_id", nullable = true)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     val sender: UserEntity? = null,
 
-    @Comment("유저가 선택한 타로카드 이름, MessageType == TAROT_RESULT 일 경우 사용")
-    @Column(name = "tarot_name", nullable = true)
-    val tarotName: String? = null,
+    @Comment("유저가 선택한 타로카드(Enum으로 관리), MessageType == TAROT_RESULT 일 경우 사용")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tarot", nullable = true, columnDefinition = "VARCHAR(50)")
+    val tarot: TarotInfo? = null,
 
     @Comment("추천 질문 ID, MessageType == RECOMMEND_TAROT_QUESTION 일 경우 존재")
     @Column(name = "reference_tarot_question_id", nullable = true)
