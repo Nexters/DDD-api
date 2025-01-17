@@ -37,14 +37,13 @@ class DiscordClient(
     }
 
     private fun createDiscordRequest(type: BizNotificationType, message: DefaultNotificationMessage): DiscordMessage {
-        val requestTime = message.requestTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         return DiscordMessage(
             embeds = listOf(
                 DiscordEmbeddedMessage(
                     title = type.title,
                     fields = listOf(
                         DiscordEmbeddedField(name = "Request Id", value = "◾️ ${message.requestId}"),
-                        DiscordEmbeddedField(name = "Time", value = "◾️ $requestTime"),
+                        DiscordEmbeddedField(name = "Request Time", value = "◾️ ${message.requestTime}"),
                         DiscordEmbeddedField(name = "Request URI", value = "◾️ ${message.requestUri}"),
                         DiscordEmbeddedField(name = "Message", value = "◾️ ${message.message}",)
                     )
