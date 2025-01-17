@@ -1,4 +1,4 @@
-package com.ddd.dddapi.global.controller
+package com.ddd.dddapi.global.handler
 
 import com.ddd.dddapi.common.dto.DefaultResponseDto
 import com.ddd.dddapi.common.exception.BizException
