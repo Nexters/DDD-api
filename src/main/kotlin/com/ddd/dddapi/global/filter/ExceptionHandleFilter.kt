@@ -32,11 +32,7 @@ class ExceptionHandleFilter(
             response.status = e.errorCode.code
             response.writer.write(objectMapper.writeValueAsString(globalResponse))
         } catch (e: Exception) {
-            val errorMessage = """
-                [에러]
-                message: ${e.message ?: "메세지 확인 불가. 체크 필요"}
-                type: ${e.javaClass.simpleName}
-            """.trimIndent()
+            val errorMessage = createErrorMessage(e)
             val globalResponse = createGlobalResponse(errorMessage)
 
             log.error(errorMessage)
@@ -47,6 +43,14 @@ class ExceptionHandleFilter(
             response.status = 500
             response.writer.write(objectMapper.writeValueAsString(globalResponse))
         }
+    }
+
+    private fun createErrorMessage(e: Exception): String {
+        return """
+            [에러]
+            message: ${e.message ?: "메세지 확인 불가. 체크 필요"}
+            type: ${e.javaClass.simpleName}
+        """.trimIndent()
     }
 
     private fun createGlobalResponse(message: String): GlobalResponse {
