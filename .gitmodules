@@ -1,0 +1,3 @@
+[submodule "ddd-config"]
+	path = ddd-config
+	url = https://github.com/kids-ground/ddd-config.git

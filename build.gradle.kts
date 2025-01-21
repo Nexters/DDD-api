@@ -54,6 +54,18 @@ allOpen {
 	annotation("jakarta.persistence.Embeddable")
 }
 
+tasks.getByName("jar") {
+	enabled = false
+}
+
+tasks.register("copyConfig", Copy::class) {
+	copy {
+		from("./ddd-config/backend/api")
+		include("*.yml", "*.xml", "*.json")
+		into("src/main/resources")
+	}
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
 }

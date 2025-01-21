@@ -6,20 +6,21 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import org.springframework.transaction.event.TransactionPhase
+import org.springframework.transaction.event.TransactionalEventListener
 import org.springframework.web.client.RestClient
-import java.time.format.DateTimeFormatter
 
+private const val NOTIFICATION_EXECUTOR_NAME = "bizNotificationExecutor"
 
 @Component
-@Async("bizNotificationExecutor")
 class DiscordClient(
     val notificationProperties: BizNotificationProperties
 ): BizNotificationClient {
-
     private val restClient = RestClient.builder()
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .build()
 
+    @Async(NOTIFICATION_EXECUTOR_NAME)
     override fun sendError(message: DefaultNotificationMessage) {
         restClient.post()
             .uri(notificationProperties.errorMessage)
@@ -28,6 +29,8 @@ class DiscordClient(
             .body(Any::class.java)
     }
 
+    @Async(NOTIFICATION_EXECUTOR_NAME)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     override fun sendInvalidQuestion(message: DefaultNotificationMessage) {
         restClient.post()
             .uri(notificationProperties.invalidQuestion)
@@ -37,14 +40,13 @@ class DiscordClient(
     }
 
     private fun createDiscordRequest(type: BizNotificationType, message: DefaultNotificationMessage): DiscordMessage {
-        val requestTime = message.requestTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         return DiscordMessage(
             embeds = listOf(
                 DiscordEmbeddedMessage(
                     title = type.title,
                     fields = listOf(
                         DiscordEmbeddedField(name = "Request Id", value = "◾️ ${message.requestId}"),
-                        DiscordEmbeddedField(name = "Time", value = "◾️ $requestTime"),
+                        DiscordEmbeddedField(name = "Request Time", value = "◾️ ${message.requestTime}"),
                         DiscordEmbeddedField(name = "Request URI", value = "◾️ ${message.requestUri}"),
                         DiscordEmbeddedField(name = "Message", value = "◾️ ${message.message}",)
                     )

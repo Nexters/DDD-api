@@ -1,5 +1,5 @@
 package com.ddd.dddapi.common.dto
 
-data class DefaultResponseDto(
+data class DefaultResponse(
     val message: String,
 )

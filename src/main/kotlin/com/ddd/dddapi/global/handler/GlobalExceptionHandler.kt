@@ -1,7 +1,10 @@
 package com.ddd.dddapi.global.handler
 
-import com.ddd.dddapi.common.dto.DefaultResponseDto
+import com.ddd.dddapi.common.dto.DefaultResponse
 import com.ddd.dddapi.common.exception.BizException
+import com.ddd.dddapi.common.extension.formattedNowLocalDateTime
+import com.ddd.dddapi.common.extension.getRequestId
+import com.ddd.dddapi.common.extension.getRequestTime
 import com.ddd.dddapi.external.notification.client.BizNotificationClient
 import com.ddd.dddapi.external.notification.dto.DefaultNotificationMessage
 import jakarta.servlet.http.HttpServletRequest
@@ -35,11 +38,11 @@ class GlobalExceptionHandler(
                 "${it.field} 필드 : ${it.defaultMessage}"
             }
         bizNotificationClient.sendError(
-            createNotificationMessage(errorMessage, request.getDescription(false).replace("uri=", ""))
+            createNotificationMessage(errorMessage, getURI(request))
         )
         return ResponseEntity
             .status(400)
-            .body(DefaultResponseDto(errorMessage))
+            .body(DefaultResponse(errorMessage))
     }
 
     /**
@@ -54,11 +57,12 @@ class GlobalExceptionHandler(
         val errorMessage = ex.message ?: "잘못된 요청입니다."
         return ResponseEntity
             .status(400)
-            .body(DefaultResponseDto(errorMessage))
+            .body(DefaultResponse(errorMessage))
     }
 
     /**
-     * 기타 Spring 내부 예외
+     * 기타 Spring이 내부적으로 지원하는 예외
+     * - 데이터 액세스, 빈 등과 관련된 예외
      */
     override fun handleExceptionInternal(
         ex: Exception,
@@ -68,26 +72,29 @@ class GlobalExceptionHandler(
         request: WebRequest
     ): ResponseEntity<Any>? {
         val errorMessage = ex.message ?: "잘못된 요청입니다."
+        bizNotificationClient.sendError(
+            createNotificationMessage(errorMessage, getURI(request))
+        )
         return ResponseEntity
-            .status(400)
-            .body(DefaultResponseDto(errorMessage))
+            .status(500)
+            .body(DefaultResponse(errorMessage))
     }
 
     /**
      * Biz 예외
      */
     @ExceptionHandler(BizException::class)
-    fun handleBizException(e: BizException): ResponseEntity<DefaultResponseDto> {
+    fun handleBizException(e: BizException): ResponseEntity<DefaultResponse> {
         return ResponseEntity
             .status(e.errorCode.code)
-            .body(DefaultResponseDto(e.log))
+            .body(DefaultResponse(e.log))
     }
 
     /**
      * 그 외 잡지 못한 예외
      */
     @ExceptionHandler(Exception::class)
-    fun handleUncaughtException(e: Exception, request: HttpServletRequest): ResponseEntity<DefaultResponseDto> {
+    fun handleUncaughtException(e: Exception, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
         val errorMessage = """
             [에러]
             message: ${e.message ?: "메세지 확인 불가. 체크 필요"}
@@ -100,17 +107,19 @@ class GlobalExceptionHandler(
         )
         return ResponseEntity
             .status(500)
-            .body(DefaultResponseDto("서버 에러"))
+            .body(DefaultResponse(errorMessage))
     }
 
+    private fun getURI(request: WebRequest): String {
+        return request.getDescription(false).replace("uri=", "")
+    }
 
     private fun createNotificationMessage(message: String, requestURI: String): DefaultNotificationMessage {
         return DefaultNotificationMessage(
             message = message,
-            requestId = "TBD",
-            requestTime = LocalDateTime.now(),
+            requestId = getRequestId(),
+            requestTime = getRequestTime(),
             requestUri = requestURI
         )
     }
-
 }

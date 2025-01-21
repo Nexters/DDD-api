@@ -32,7 +32,18 @@ class OpenApiConfig {
         .title("DDD API 명세")
         .description("""
             DDD(개발 한 스푼) 어플리케이션을 위한 API 명세서입니다.
-            - 모든 API의 Path는 '/api'로 시작합니다.
+            - 모든 API의 Path는 **'/api'로 시작**합니다.
+            - 모든 API의 응답은 **공통 응답 형식**을 가집니다. data에 실제 응답 데이터가 들어갑니다.
+                ```json
+                {
+                  "requestId": "서버생성 요청ID",
+                  "requestTime": "요청시간",
+                  "success": "성공여부",
+                  "data": {
+                    JSON 데이터
+                  }
+                }
+                ```
         """.trimIndent())
         .version("v1.0.0")
 
