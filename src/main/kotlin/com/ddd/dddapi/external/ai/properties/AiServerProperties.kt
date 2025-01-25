@@ -6,5 +6,9 @@ import org.springframework.boot.context.properties.bind.ConstructorBinding
 @ConfigurationProperties(prefix = "external.ai-server")
 data class AiServerProperties @ConstructorBinding constructor(
     val domain: String,
-    // TODO: 각 Path 들
+    val basePath: String,
+    val classifyChatPath: String,
+    val generalChatPath: String,
+    val inappropriateChatPath: String,
+    val tarotResultPath: String
 )
