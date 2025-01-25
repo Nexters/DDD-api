@@ -18,5 +18,5 @@ class TarotQuestionEntity(
 
     @Comment("해당 질문을 사용한 횟수")
     @Column(name = "reference_count", nullable = false)
-    val referenceCount: Long = 1,
+    var referenceCount: Long = 1,
 ): BaseEntity()

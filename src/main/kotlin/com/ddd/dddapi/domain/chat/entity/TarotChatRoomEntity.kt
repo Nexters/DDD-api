@@ -1,4 +1,4 @@
-package com.ddd.dddapi.domain.tarot.entity
+package com.ddd.dddapi.domain.chat.entity
 
 import com.ddd.dddapi.domain.common.entity.BaseEntity
 import com.ddd.dddapi.domain.user.entity.UserEntity
