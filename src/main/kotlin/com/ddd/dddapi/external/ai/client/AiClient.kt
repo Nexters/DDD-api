@@ -9,14 +9,19 @@ interface AiClient {
     fun chatClassification(request: AiChatCommonRequestDto): AiChatClassifyResponseDto
 
     /**
-     * 일반 대화
+     * 일반 대화 응답
      */
     fun chatCasually(request: AiChatCommonRequestDto): AiChatCommonResponseDto
 
     /**
-     * 부적절한 대화
+     * 부적절한 대화 응답
      */
     fun chatInappropriate(request: AiChatCommonRequestDto): AiChatCommonResponseDto
+
+    /**
+     * 타로질문 응답
+     */
+    fun chatTarotQuestion(request: AiChatCommonRequestDto): AiChatCommonResponseDto
 
     /**
      * 타로 결과

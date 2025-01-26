@@ -16,11 +16,6 @@ class TarotResultEntity(
     @Column(name = "id", nullable = false)
     val id: Long = 0,
 
-    @Comment("타로 결과를 만들어낸 타로질문 메세지 id")
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "related_question_message_id", nullable = false)
-    val relatedQuestionMessage: TarotChatMessageEntity,
-
     @Comment("유저가 선택한 타로카드(Enum으로 관리), MessageType == SYSTEM_SELECTED_TAROT 일 경우 사용")
     @Enumerated(EnumType.STRING)
     @Column(name = "tarot", nullable = false, columnDefinition = "VARCHAR(50)")

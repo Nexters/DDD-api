@@ -46,7 +46,7 @@ class TarotChatMessageEntity(
     @Column(name = "tarot", nullable = true, columnDefinition = "VARCHAR(50)")
     val tarot: TarotInfo? = null,
 
-    @Comment("유저가 선택한 타로카드(Enum으로 관리), MessageType == SYSTEM_SELECTED_TAROT 일 경우 사용")
+    @Comment("타로 결과 ID, MessageType == SYSTEM_TAROT_RESULT 일 경우 존재")
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "tarot_result_id", nullable = true)
     val tarotResult: TarotResultEntity? = null,

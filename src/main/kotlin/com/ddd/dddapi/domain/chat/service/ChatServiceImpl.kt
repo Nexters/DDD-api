@@ -43,9 +43,10 @@ class ChatServiceImpl(
         val user = userService.getUserOrThrow(tempUserKey)
         val chatRoom = getChatRoomOrThrow(roomId)
         val chatMessageList = tarotChatMessageRepository.findAllByChatRoom(chatRoom)
-            .map { ChatMessageResponseDto.fromChatMessageEntity(it) }
 
-        return ChatMessageListResponseDto(chatMessageList)
+        return ChatMessageListResponseDto(
+            chatMessageList.map { ChatMessageResponseDto.of(it) }
+        )
     }
 
     @Transactional
@@ -61,23 +62,27 @@ class ChatServiceImpl(
             sender = user,
             message = requestResponseChatMessage.requestMessage,
             referenceTarotQuestionId = request.referenceQuestionId
-        ).apply { tarotChatMessageRepository.save(this) }
+        )
         val responseChatMessage = TarotChatMessageEntity(
             chatRoom = chatRoom,
             messageType = requestResponseChatMessage.responseMessageType,
             senderType = MessageSender.SYSTEM,
             message = requestResponseChatMessage.responseMessage
-        ).apply { tarotChatMessageRepository.save(this) }
+        )
+        tarotChatMessageRepository.save(requestChatMessage)
+        tarotChatMessageRepository.save(responseChatMessage)
 
-        return ChatMessageResponseDto.fromChatMessageEntity(responseChatMessage)
+        return ChatMessageResponseDto.of(responseChatMessage)
     }
 
+    @Transactional
     override fun getChatRoomOrThrow(roomId: Long): TarotChatRoomEntity {
         // TODO: 예외 구체화
         return tarotChatRoomRepository.findById(roomId)
             .orElseThrow { BadRequestBizException("채팅방이 존재하지 않습니다.") }
     }
 
+    @Transactional
     override fun getLatestUserTarotQuestionOrThrow(roomId: Long): TarotChatMessageEntity {
         // TODO: 예외 구체화
         return tarotChatMessageRepository.findLatestUserTarotQuestion(roomId)
@@ -90,8 +95,14 @@ class ChatServiceImpl(
     ): RequestResponseChatMessage =
         when(request.intent) {
             MessageIntent.NORMAL -> {
-                val chatClassification = aiClient.chatClassification(AiChatCommonRequestDto(chatRoom.id.toString(), request.message))
-                val responseMessage = getResponseChatByClassification(chatRoom.id, request.message, chatClassification.type)
+                // AI 대화 유형 분류 & AI 답변
+                val chatClassification = aiClient.chatClassification(
+                    AiChatCommonRequestDto(
+                        chatRoom.id.toString(),
+                        request.message
+                    )
+                )
+                val responseMessage = getResponseMessageByClassification(chatRoom.id, request.message, chatClassification.type)
                 RequestResponseChatMessage(
                     requestMessage = request.message,
                     requestMessageType = MessageType.userMessageFrom(chatClassification.type),
@@ -99,17 +110,33 @@ class ChatServiceImpl(
                     responseMessageType = MessageType.systemMessageFrom(chatClassification.type)
                 )
             }
-            MessageIntent.TAROT_ACCEPT -> {
-                val responseMessage = "너의 고민에 집중하면서\n카드를 한 장 뽑아봐."
+            MessageIntent.RECOMMEND_QUESTION -> {
+                // 타로질문 AI 답변
+                val referenceQuestionId = request.referenceQuestionId ?: throw BadRequestBizException("참조 질문이 없습니다.")
+                tarotQuestionRepository.findById(referenceQuestionId)
+                    .orElseThrow { BadRequestBizException("참조 질문이 존재하지 않습니다.") }
+                    .apply { referenceCount += 1 }
+                val responseMessage = aiClient.chatTarotQuestion(
+                    AiChatCommonRequestDto(
+                        request.roomId.toString(),
+                        request.message
+                    )
+                ).answer
                 RequestResponseChatMessage(
                     requestMessage = request.message,
-                    requestMessageType = MessageType.USER_TAROT_QUESTION_ACCEPTANCE,
+                    requestMessageType = MessageType.USER_TAROT_QUESTION,
                     responseMessage = responseMessage,
-                    responseMessageType = MessageType.SYSTEM_TAROT_QUESTION_ACCEPTANCE_REPLY
+                    responseMessageType = MessageType.SYSTEM_TAROT_QUESTION_REPLY
                 )
             }
             MessageIntent.TAROT_DECLINE -> {
-                val responseMessage = aiClient.chatCasually(AiChatCommonRequestDto(chatRoom.id.toString(), request.message)).answer
+                // 일반질문 AI 답변
+                val responseMessage = aiClient.chatCasually(
+                    AiChatCommonRequestDto(
+                        chatRoom.id.toString(),
+                        request.message
+                    )
+                ).answer
                 RequestResponseChatMessage(
                     requestMessage = request.message,
                     requestMessageType = MessageType.USER_TAROT_QUESTION_DECLINE,
@@ -117,13 +144,9 @@ class ChatServiceImpl(
                     responseMessageType = MessageType.SYSTEM_NORMAL_REPLY
                 )
             }
-            MessageIntent.RECOMMEND_QUESTION -> {
-                val referenceQuestionId = request.referenceQuestionId ?: throw BadRequestBizException("참조 질문이 없습니다.")
-                tarotQuestionRepository.findById(referenceQuestionId)
-                    .orElseThrow { BadRequestBizException("참조 질문이 존재하지 않습니다.") }
-                    .apply { referenceCount += 1 }
-
-                val responseMessage = "좋아! 너의 고민에 집중하면서\n카드를 한 장 뽑아봐."
+            MessageIntent.TAROT_ACCEPT -> {
+                // 타로 선택 권유
+                val responseMessage = "너의 고민에 집중하면서\n카드를 한 장 뽑아봐."
                 RequestResponseChatMessage(
                     requestMessage = request.message,
                     requestMessageType = MessageType.USER_TAROT_QUESTION_ACCEPTANCE,
@@ -133,7 +156,7 @@ class ChatServiceImpl(
             }
         }
 
-    private fun getResponseChatByClassification(
+    private fun getResponseMessageByClassification(
         roomId: Long,
         message: String,
         chatType: AiInferredChatType
@@ -143,7 +166,7 @@ class ChatServiceImpl(
             AiInferredChatType.INAPPROPRIATE -> aiClient.chatInappropriate(AiChatCommonRequestDto(roomId.toString(), message)).answer
             AiInferredChatType.TAROT -> {
                 tarotQuestionRepository.save(TarotQuestionEntity(question = message))
-                aiClient.chatCasually(AiChatCommonRequestDto(roomId.toString(), message)).answer
+                aiClient.chatTarotQuestion(AiChatCommonRequestDto(roomId.toString(), message)).answer
             }
         }
 }

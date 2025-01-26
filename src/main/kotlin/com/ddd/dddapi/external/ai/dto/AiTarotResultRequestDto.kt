@@ -7,6 +7,5 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class AiTarotResultRequestDto(
     val chatRoomId: String,
-    val chat: String,
     val tarotCard: TarotInfo
 )

@@ -18,7 +18,8 @@ data class TarotResultResponseDto(
 ) {
     companion object {
         fun of(
-            tarotResultEntity: TarotResultEntity
+            tarotResultEntity: TarotResultEntity,
+            questionMessage: String
         ): TarotResultResponseDto {
             return TarotResultResponseDto(
                 tarot = tarotResultEntity.tarot,
@@ -30,7 +31,7 @@ data class TarotResultResponseDto(
                 answer = Answer(
                     summary = tarotResultEntity.answerSummary,
                     description = tarotResultEntity.answerDescription,
-                    question = tarotResultEntity.relatedQuestionMessage.message
+                    question = questionMessage
                 ),
                 advice = Advice(
                     summary = tarotResultEntity.adviceSummary,

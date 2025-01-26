@@ -21,7 +21,7 @@ data class ChatMessageResponseDto(
     val tarotResultId: Long?
 ) {
     companion object {
-        fun fromChatMessageEntity(
+        fun of(
             chatMessage: TarotChatMessageEntity
         ): ChatMessageResponseDto {
             return ChatMessageResponseDto(

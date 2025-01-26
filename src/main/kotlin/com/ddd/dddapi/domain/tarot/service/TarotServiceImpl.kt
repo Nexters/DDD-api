@@ -32,20 +32,16 @@ class TarotServiceImpl(
 ): TarotService {
     @Transactional
     override fun selectTarot(tempUserKey: String, request: TarotSelectRequestDto): ChatMessageResponseDto {
-        val user = userService.getUserOrThrow(tempUserKey)
+        userService.getUserOrThrow(tempUserKey)
         val room = chatService.getChatRoomOrThrow(request.roomId)
-        val tarotQuestion = chatService.getLatestUserTarotQuestionOrThrow(request.roomId)
-
         val tarotResultInfo = aiClient.chatTarotResult(
             AiTarotResultRequestDto(
                 chatRoomId = room.id.toString(),
-                chat = tarotQuestion.message,
                 tarotCard = request.tarotName
             )
         )
 
         val tarotResult = TarotResultEntity(
-            relatedQuestionMessage = tarotQuestion,
             tarot = request.tarotName,
             type = tarotResultInfo.type,
             cardValueSummary = tarotResultInfo.summaryOfDescriptionOfCard,
@@ -54,23 +50,28 @@ class TarotServiceImpl(
             answerDescription = tarotResultInfo.analysis,
             adviceSummary = tarotResultInfo.summaryOfAdvice,
             adviceDescription = tarotResultInfo.advice
-        ).also { tarotResultRepository.save(it) }
+        )
         val newChatMessage = TarotChatMessageEntity(
             chatRoom = room,
             messageType = MessageType.SYSTEM_TAROT_RESULT,
             senderType = MessageSender.SYSTEM,
-            message = "타로 결과를 다시 보고 싶다면 카드를 눌러보라\n또 궁금한거 있어냥?",
+            message = "타로 결과를 다시 보고 싶다면 카드를 눌러봐\n또 궁금한거 있어냥?",
+            tarot = request.tarotName,
             tarotResult = tarotResult
-        ).also { tarotChatMessageRepository.save(it) }
+        )
+        tarotResultRepository.save(tarotResult)
+        tarotChatMessageRepository.save(newChatMessage)
 
-        return ChatMessageResponseDto.fromChatMessageEntity(newChatMessage)
+        return ChatMessageResponseDto.of(newChatMessage)
     }
 
     @Transactional
     override fun getTarotResult(tarotResultId: Long): TarotResultResponseDto {
         val tarotResult = tarotResultRepository.findById(tarotResultId)
             .orElseThrow { BadRequestBizException("타로 결과를 찾을 수 없습니다.") }
-        return TarotResultResponseDto.of(tarotResult)
+        val tarotResultMessage = tarotChatMessageRepository.findByTarotResult(tarotResult)
+            ?: throw BadRequestBizException("타로 결과를 담은 메세지를 찾을 수 없습니다.")
+        return TarotResultResponseDto.of(tarotResult, tarotResultMessage.message)
     }
 
     @Transactional

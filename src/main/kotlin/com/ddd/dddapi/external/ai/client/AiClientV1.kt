@@ -1,7 +1,9 @@
 package com.ddd.dddapi.external.ai.client
 
+import com.ddd.dddapi.common.exception.BadRequestBizException
 import com.ddd.dddapi.external.ai.dto.*
 import com.ddd.dddapi.external.ai.properties.AiServerProperties
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 
 @Component
+@Profile("!local")
 class AiClientV1(
     private val aiServerProperties: AiServerProperties
 ): AiClient {
@@ -38,6 +41,13 @@ class AiClientV1(
         )
     }
 
+    override fun chatTarotQuestion(request: AiChatCommonRequestDto): AiChatCommonResponseDto {
+        return requestPostToAiServer<AiChatCommonRequestDto, AiChatCommonResponseDto>(
+            aiServerProperties.tarotQuestionChatPath,
+            request
+        )
+    }
+
     override fun chatTarotResult(request: AiTarotResultRequestDto): AiTarotResultResponseDto {
         return requestPostToAiServer<AiTarotResultRequestDto, AiTarotResultResponseDto>(
             aiServerProperties.tarotResultPath,
@@ -52,11 +62,11 @@ class AiClientV1(
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError) { req, res ->
                 // TODO: 예외 디테일하게 선언하기
-                throw RuntimeException("Failed to request to ai server")
+                throw BadRequestBizException("AI Server 4XX Error")
             }
             .onStatus(HttpStatusCode::is5xxServerError) { req, res ->
                 // TODO: 예외 디테일하게 선언하기
-                throw RuntimeException("AI Server Error")
+                throw BadRequestBizException("AI Server 5XX Error")
             }
             .toEntity(Res::class.java)
 
