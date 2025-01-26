@@ -1,5 +1,8 @@
 package com.ddd.dddapi.domain.tarot.entity
 
+import com.ddd.dddapi.common.enums.TarotInfo
+import com.ddd.dddapi.domain.chat.entity.TarotChatMessageEntity
+import com.ddd.dddapi.domain.common.entity.BaseEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 
@@ -9,12 +12,37 @@ import org.hibernate.annotations.Comment
 @Table(name = "tarot_results")
 class TarotResultEntity(
     @Id
-    @OneToOne
-    @JoinColumn(name = "question_message_id", nullable = false)
-    val questionMessage: TarotChatMessageEntity,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    val id: Long = 0,
 
-    @Comment("질문에 대한 결과 메시지, 선택된 타로카드 이름을 가짐")
-    @OneToOne
-    @JoinColumn(name = "result_message_id", nullable = false)
-    val resultMessage: TarotChatMessageEntity
-)
+    @Comment("유저가 선택한 타로카드(Enum으로 관리), MessageType == SYSTEM_SELECTED_TAROT 일 경우 사용")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tarot", nullable = false, columnDefinition = "VARCHAR(50)")
+    val tarot: TarotInfo,
+
+    @Comment("타로결과 유형")
+    @Column(name = "type", nullable = false, columnDefinition = "VARCHAR(50)")
+    val type: String,
+
+    @Column(name = "card_value_summary", nullable = false, columnDefinition = "VARCHAR(255)")
+    val cardValueSummary: String,
+
+    @Lob
+    @Column(name = "card_value_description", nullable = false, columnDefinition = "TEXT")
+    val cardValueDescription: String,
+
+    @Column(name = "answer_summary", nullable = false, columnDefinition = "VARCHAR(255)")
+    val answerSummary: String,
+
+    @Lob
+    @Column(name = "answer_description", nullable = false, columnDefinition = "TEXT")
+    val answerDescription: String,
+
+    @Column(name = "advice_summary", nullable = false, columnDefinition = "VARCHAR(255)")
+    val adviceSummary: String,
+
+    @Lob
+    @Column(name = "advice_description", nullable = false, columnDefinition = "TEXT")
+    val adviceDescription: String,
+): BaseEntity()

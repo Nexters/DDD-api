@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+@Deprecated(message = "테스트용 컨트롤러입니다.")
 @RestController
 @RequestMapping("/dummy")
 @Tag(name = "99. Dummy Test")
