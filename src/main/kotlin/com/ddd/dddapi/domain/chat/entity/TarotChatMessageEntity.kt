@@ -54,6 +54,23 @@ class TarotChatMessageEntity(
     @Comment("추천 질문 ID, MessageType == RECOMMEND_TAROT_QUESTION 일 경우 존재")
     @Column(name = "reference_tarot_question_id", nullable = true)
     val referenceTarotQuestionId: Long? = null,
-): BaseEntity()
+): BaseEntity() {
+    companion object {
+        fun createTarotResultChatMessage(
+            chatRoom: TarotChatRoomEntity,
+            tarot: TarotInfo? = null,
+            tarotResult: TarotResultEntity? = null,
+        ): TarotChatMessageEntity {
+            return TarotChatMessageEntity(
+                chatRoom = chatRoom,
+                messageType = MessageType.SYSTEM_TAROT_RESULT,
+                senderType = MessageSender.SYSTEM,
+                message = "타로 결과를 다시 보고 싶다면 카드를 눌러봐\n또 궁금한거 있어냥?",
+                tarot = tarot,
+                tarotResult = tarotResult
+            )
+        }
+    }
+}
 
 
