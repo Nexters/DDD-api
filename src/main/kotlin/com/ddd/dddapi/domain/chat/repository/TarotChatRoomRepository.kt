@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface TarotChatRoomRepository: JpaRepository<TarotChatRoomEntity, Long> {
     fun findByUser(user: UserEntity): List<TarotChatRoomEntity>
+    fun findByIdAndUser(id: Long, user: UserEntity): TarotChatRoomEntity?
 }

@@ -11,6 +11,4 @@ interface ChatService {
     fun createChatRoom(tempUserKey: String): ChatRoomCreateResponseDto
     fun getChatRoomMessages(tempUserKey: String, roomId: Long): ChatMessageListResponseDto
     fun sendChatMessage(tempUserKey: String, request: ChatMessageSendRequestDto): ChatMessageResponseDto
-    fun getChatRoomOrThrow(roomId: Long): TarotChatRoomEntity
-    fun getLatestUserTarotQuestionOrThrow(roomId: Long): TarotChatMessageEntity
 }

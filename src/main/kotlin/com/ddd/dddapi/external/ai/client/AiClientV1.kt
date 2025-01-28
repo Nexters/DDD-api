@@ -1,14 +1,16 @@
 package com.ddd.dddapi.external.ai.client
 
-import com.ddd.dddapi.common.exception.BadRequestBizException
+import com.ddd.dddapi.common.exception.ExternalServerErrorBizException
 import com.ddd.dddapi.external.ai.dto.*
 import com.ddd.dddapi.external.ai.properties.AiServerProperties
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
+import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
+import java.nio.charset.StandardCharsets
 
 @Component
 @Profile("!local")
@@ -55,24 +57,33 @@ class AiClientV1(
         )
     }
 
-    private inline fun <reified Req : Any,reified Res : Any> requestPostToAiServer(path: String, request: Req): Res {
+    private inline fun <reified Req : Any, reified Res : Any> requestPostToAiServer(path: String, request: Req): Res {
         val response = restClient.post()
             .uri(path)
             .body(request)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) { req, res ->
-                // TODO: 예외 디테일하게 선언하기
-                throw BadRequestBizException("AI Server 4XX Error")
+            .onStatus(HttpStatusCode::is4xxClientError) { _, res ->
+                throw ExternalServerErrorBizException(responseLog("4XX Error", res))
             }
-            .onStatus(HttpStatusCode::is5xxServerError) { req, res ->
-                // TODO: 예외 디테일하게 선언하기
-                throw BadRequestBizException("AI Server 5XX Error")
+            .onStatus(HttpStatusCode::is5xxServerError) { _, res ->
+                throw ExternalServerErrorBizException(responseLog("5XX Error", res))
             }
             .toEntity(Res::class.java)
 
-        // TODO: 예외 디테일하게 선언하기
-        response.body?.let {
-            return it
-        } ?: throw RuntimeException("Failed to request to ai server")
+        return response.body ?: throw ExternalServerErrorBizException("Failed to request to ai server")
+    }
+
+    private fun responseLog(errorType: String, response: ClientHttpResponse): String {
+        try {
+            val responseBody = String(response.body.readAllBytes(), StandardCharsets.UTF_8)
+            return """
+                AI 서버 응답 에러: [$errorType]
+                Status Code: ${response.statusCode}
+                Headers: ${response.headers}
+                Body: $responseBody
+            """.trimIndent()
+        } catch (e: Exception) {
+            return "Failed to log AI Server response details"
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.ddd.dddapi.global.handler
 
 import com.ddd.dddapi.common.dto.DefaultResponse
 import com.ddd.dddapi.common.exception.BizException
-import com.ddd.dddapi.common.extension.formattedNowLocalDateTime
 import com.ddd.dddapi.common.extension.getRequestId
 import com.ddd.dddapi.common.extension.getRequestTime
 import com.ddd.dddapi.external.notification.client.BizNotificationClient
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import java.time.LocalDateTime
 
 @RestControllerAdvice(basePackages = ["com.ddd.dddapi"])
 class GlobalExceptionHandler(
@@ -37,9 +35,6 @@ class GlobalExceptionHandler(
             .fieldErrors.joinToString("\n") {
                 "${it.field} 필드 : ${it.defaultMessage}"
             }
-        bizNotificationClient.sendError(
-            createNotificationMessage(errorMessage, getURI(request))
-        )
         return ResponseEntity
             .status(400)
             .body(DefaultResponse(errorMessage))
@@ -84,10 +79,19 @@ class GlobalExceptionHandler(
      * Biz 예외
      */
     @ExceptionHandler(BizException::class)
-    fun handleBizException(e: BizException): ResponseEntity<DefaultResponse> {
+    fun handleBizException(e: BizException, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
+        val errorMessage = """
+            [에러]
+            message: ${e.log}
+            type: ${e.javaClass.simpleName}
+        """.trimIndent()
+
+        bizNotificationClient.sendError(
+            createNotificationMessage(errorMessage, request.requestURI ?: "URI 확인 불가. 체크 필요")
+        )
         return ResponseEntity
             .status(e.errorCode.code)
-            .body(DefaultResponse(e.log))
+            .body(DefaultResponse(e.errorCode.message))
     }
 
     /**
