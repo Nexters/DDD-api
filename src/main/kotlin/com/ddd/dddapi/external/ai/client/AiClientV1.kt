@@ -1,6 +1,5 @@
 package com.ddd.dddapi.external.ai.client
 
-import com.ddd.dddapi.common.exception.BadRequestBizException
 import com.ddd.dddapi.common.exception.ExternalServerErrorBizException
 import com.ddd.dddapi.external.ai.dto.*
 import com.ddd.dddapi.external.ai.properties.AiServerProperties

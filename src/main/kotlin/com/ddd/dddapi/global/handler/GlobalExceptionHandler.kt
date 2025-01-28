@@ -2,7 +2,6 @@ package com.ddd.dddapi.global.handler
 
 import com.ddd.dddapi.common.dto.DefaultResponse
 import com.ddd.dddapi.common.exception.BizException
-import com.ddd.dddapi.common.extension.formattedNowLocalDateTime
 import com.ddd.dddapi.common.extension.getRequestId
 import com.ddd.dddapi.common.extension.getRequestTime
 import com.ddd.dddapi.external.notification.client.BizNotificationClient
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import java.time.LocalDateTime
 
 @RestControllerAdvice(basePackages = ["com.ddd.dddapi"])
 class GlobalExceptionHandler(

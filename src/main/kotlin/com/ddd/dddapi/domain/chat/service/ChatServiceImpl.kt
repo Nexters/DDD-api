@@ -1,12 +1,10 @@
 package com.ddd.dddapi.domain.chat.service
 
 import com.ddd.dddapi.common.enums.MessageIntent
-import com.ddd.dddapi.common.enums.MessageSender
 import com.ddd.dddapi.common.enums.MessageType
 import com.ddd.dddapi.common.exception.BadRequestBizException
 import com.ddd.dddapi.common.exception.InternalServerErrorBizException
 import com.ddd.dddapi.domain.chat.dto.*
-import com.ddd.dddapi.domain.chat.entity.TarotChatMessageEntity
 import com.ddd.dddapi.domain.chat.entity.TarotChatRoomEntity
 import com.ddd.dddapi.domain.chat.repository.TarotChatMessageRepository
 import com.ddd.dddapi.domain.chat.repository.TarotChatRoomRepository
@@ -17,7 +15,6 @@ import com.ddd.dddapi.domain.user.service.UserService
 import com.ddd.dddapi.domain.user.service.helper.UserHelperService
 import com.ddd.dddapi.external.ai.client.AiClient
 import com.ddd.dddapi.external.ai.dto.AiChatCommonRequestDto
-import com.ddd.dddapi.external.ai.dto.AiInferredChatType
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
