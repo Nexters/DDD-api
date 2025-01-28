@@ -12,9 +12,7 @@ class UserHelperService(
     private val userRepository: UserRepository
 ) {
     fun getUserOrThrow(tempUserKey: String): UserEntity {
-        // TODO: 예외 구체화
-        userRepository.findByTempUserKey(tempUserKey)?.let {
-            return it
-        } ?: throw BadRequestBizException("유저가 존재하지 않습니다")
+        return userRepository.findByTempUserKey(tempUserKey)
+            ?: throw BadRequestBizException("해당 유저가 존재하지 않습니다. [tempUserKey: $tempUserKey]")
     }
 }

@@ -4,6 +4,7 @@ import com.ddd.dddapi.common.enums.MessageIntent
 import com.ddd.dddapi.common.enums.MessageSender
 import com.ddd.dddapi.common.enums.MessageType
 import com.ddd.dddapi.common.exception.BadRequestBizException
+import com.ddd.dddapi.common.exception.InternalServerErrorBizException
 import com.ddd.dddapi.domain.chat.dto.*
 import com.ddd.dddapi.domain.chat.entity.TarotChatMessageEntity
 import com.ddd.dddapi.domain.chat.entity.TarotChatRoomEntity
@@ -73,9 +74,10 @@ class ChatServiceImpl(
 
     private fun validateIfRecommendQuestionExists(request: ChatMessageSendRequestDto) {
         if (request.intent != MessageIntent.RECOMMEND_QUESTION) return
-        request.referenceQuestionId ?: throw BadRequestBizException("참조 질문 ID가 없습니다.")
+        request.referenceQuestionId ?: throw BadRequestBizException("MessageIntent.RECOMMEND_QUESTION 이지만 추천질문 ID가 존재하지 않습니다.")
+
         tarotQuestionRepository.findById(request.referenceQuestionId)
-            .orElseThrow { BadRequestBizException("참조 질문이 존재하지 않습니다.") }
+            .orElseThrow { BadRequestBizException("존재하지 않는 추천질문 ID(${request.referenceQuestionId}) 입니다.") }
             .apply { referenceCount += 1 }
     }
 
@@ -114,7 +116,7 @@ class ChatServiceImpl(
             MessageType.USER_NORMAL,
             MessageType.USER_TAROT_QUESTION_DECLINE -> aiClient.chatCasually(request).answer
             MessageType.USER_TAROT_QUESTION_ACCEPTANCE -> "너의 고민에 집중하면서\n카드를 한 장 뽑아봐."
-            else -> throw BadRequestBizException("지원하지 않는 메시지 타입입니다.")
+            else -> throw InternalServerErrorBizException("사용자 대화유형을 잘못 추론하였습니다.${inquiry.messageType}")
         }
         return InferredReplyChatMessage(replyMessage, inquiry.messageType.replyType())
     }

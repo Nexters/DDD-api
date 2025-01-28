@@ -15,8 +15,7 @@ class TarotHelperService(
     private val tarotResultRepository: TarotResultRepository
 ) {
     fun getTarotResultOrThrow(tarotResultId: Long): TarotResultEntity {
-        // TODO: 예외 구체화
         return tarotResultRepository.findByIdOrNull(tarotResultId)
-            ?: throw BadRequestBizException("타로 결과를 찾을 수 없습니다.")
+            ?: throw BadRequestBizException("타로 결과를 찾을 수 없습니다. id: $tarotResultId")
     }
 }
