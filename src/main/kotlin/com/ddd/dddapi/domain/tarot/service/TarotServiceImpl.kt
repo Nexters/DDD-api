@@ -41,7 +41,7 @@ class TarotServiceImpl(
     override fun selectTarot(tempUserKey: String, request: TarotSelectRequestDto): ChatMessageResponseDto {
         // validation
         val user = userHelperService.getUserOrThrow(tempUserKey)
-        val room = chatHelperService.getChatRoomOrThrow(request.roomId)
+        val room = chatHelperService.getChatRoomOrThrow(request.roomId, user)
 
         // tarotResult 생성
         val tarotResultInfo = aiClient.chatTarotResult(
