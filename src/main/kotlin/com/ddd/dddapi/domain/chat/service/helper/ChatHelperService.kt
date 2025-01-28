@@ -7,6 +7,7 @@ import com.ddd.dddapi.domain.chat.repository.TarotChatMessageRepository
 import com.ddd.dddapi.domain.chat.repository.TarotChatRoomRepository
 import com.ddd.dddapi.domain.common.annotation.HelperService
 import com.ddd.dddapi.domain.tarot.entity.TarotResultEntity
+import com.ddd.dddapi.domain.user.entity.UserEntity
 import org.springframework.transaction.annotation.Transactional
 
 @HelperService
@@ -19,6 +20,12 @@ class ChatHelperService(
         // TODO: 예외 구체화
         return tarotChatRoomRepository.findById(roomId)
             .orElseThrow { BadRequestBizException("채팅방이 존재하지 않습니다.") }
+    }
+
+    fun getChatRoomOrThrow(roomId: Long, user: UserEntity): TarotChatRoomEntity {
+        // TODO: 예외 구체화
+        return tarotChatRoomRepository.findByIdAndUser(roomId, user)
+            ?: throw BadRequestBizException("해당 유저 권한의 채팅방이 존재하지 않습니다.")
     }
 
     fun getTarotResultMessageOrThrow(tarotResult: TarotResultEntity): TarotChatMessageEntity {

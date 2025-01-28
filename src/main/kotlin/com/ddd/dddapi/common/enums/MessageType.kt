@@ -32,4 +32,15 @@ enum class MessageType {
                 AiInferredChatType.TAROT -> SYSTEM_TAROT_QUESTION_REPLY
             }
     }
+
+    fun replyType(): MessageType =
+        when(this) {
+            USER_INVALID_QUESTION -> SYSTEM_INVALID_QUESTION_REPLY
+            USER_FOLLOW_QUESTION,
+            USER_TAROT_QUESTION -> SYSTEM_TAROT_QUESTION_REPLY
+            USER_NORMAL,
+            USER_TAROT_QUESTION_DECLINE -> SYSTEM_NORMAL_REPLY
+            USER_TAROT_QUESTION_ACCEPTANCE -> SYSTEM_TAROT_QUESTION_ACCEPTANCE_REPLY
+            else -> SYSTEM_NORMAL_REPLY
+        }
 }
