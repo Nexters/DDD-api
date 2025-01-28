@@ -18,6 +18,8 @@ import org.springframework.web.method.support.ModelAndViewContainer
 class RequestUserArgumentResolver(
     private val environment: Environment
 ): HandlerMethodArgumentResolver {
+    private val tempUserHeaderName = "X-Guest-ID"
+
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.hasParameterAnnotation(RequestUser::class.java) && parameter.parameterType == RequestUserInfo::class.java
     }
@@ -28,20 +30,10 @@ class RequestUserArgumentResolver(
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
     ): Any? {
-        val request = webRequest.nativeRequest as HttpServletRequest
-        val cookies = request.cookies
-
-        val cookieValueAnnotation = parameter.getParameterAnnotation(RequestUser::class.java)
-        val cookieKey = cookieValueAnnotation!!.value
-        val isProduction = environment.activeProfiles.contains("prod")
-
-        cookies?.firstOrNull { it.name.equals(cookieKey) }
-            ?.let { cookie ->
-                return RequestUserInfo(cookie.value)
+        webRequest.getHeader(tempUserHeaderName)
+            ?.let {
+                return RequestUserInfo(it)
             }
-
-        return if (!isProduction)
-            RequestUserInfo("admin")
-        else null
+        return null
     }
 }
