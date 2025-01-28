@@ -37,9 +37,6 @@ class GlobalExceptionHandler(
             .fieldErrors.joinToString("\n") {
                 "${it.field} 필드 : ${it.defaultMessage}"
             }
-        bizNotificationClient.sendError(
-            createNotificationMessage(errorMessage, getURI(request))
-        )
         return ResponseEntity
             .status(400)
             .body(DefaultResponse(errorMessage))
@@ -84,10 +81,19 @@ class GlobalExceptionHandler(
      * Biz 예외
      */
     @ExceptionHandler(BizException::class)
-    fun handleBizException(e: BizException): ResponseEntity<DefaultResponse> {
+    fun handleBizException(e: BizException, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
+        val errorMessage = """
+            [에러]
+            message: ${e.log}
+            type: ${e.javaClass.simpleName}
+        """.trimIndent()
+
+        bizNotificationClient.sendError(
+            createNotificationMessage(errorMessage, request.requestURI ?: "URI 확인 불가. 체크 필요")
+        )
         return ResponseEntity
             .status(e.errorCode.code)
-            .body(DefaultResponse(e.log))
+            .body(DefaultResponse(e.errorCode.message))
     }
 
     /**
