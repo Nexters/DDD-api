@@ -13,8 +13,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.HandlerMethod
 
-private const val USER_KEY_SCHEME: String = "간편 유저 확인 Key"
-private const val USER_COOKIE_KEY_NAME: String = "userKey"
+
+private const val USER_IDENTIFICATION_SCHEME: String = "유저 식별 Key"
+private const val USER_IDENTIFICATION_HEADER_NAME: String = "X-Guest-ID"
+
 
 @Configuration
 class OpenApiConfig {
@@ -24,7 +26,7 @@ class OpenApiConfig {
     fun openApi(): OpenAPI = OpenAPI()
         .info(apiInfo())
         .components(
-            Components().addSecuritySchemes(USER_KEY_SCHEME, userKeyScheme())
+            Components().addSecuritySchemes(USER_IDENTIFICATION_SCHEME, userKeyScheme())
         )
         .security(securityRequirementList())
 
@@ -49,15 +51,14 @@ class OpenApiConfig {
 
     private fun userKeyScheme() = SecurityScheme()
         .type(SecurityScheme.Type.APIKEY)
-        .`in`(SecurityScheme.In.COOKIE)
-        .name(USER_COOKIE_KEY_NAME)
+        .`in`(SecurityScheme.In.HEADER)
+        .name(USER_IDENTIFICATION_HEADER_NAME)
         .description("""
-            ❗️Swagger 보안이슈로 인해 쿠키를 담아 요청할 수 없습니다.(현재 서버 로직으로 admin 계정으로 처리중)
-            실제 요청시 프론트 레벨에서 withCredential = true로 설정 & 쿠키 키 'userKey'에 담아 요청합니다.
+            유저 식별을 위한 Key입니다. **X-Guest-ID 헤더**에 생성한 UUID를 넣어주세요.
         """.trimIndent())
 
     private fun securityRequirementList() = listOf(
-        SecurityRequirement().addList(USER_KEY_SCHEME)
+        SecurityRequirement().addList(USER_IDENTIFICATION_SCHEME)
     )
 
     @Bean
