@@ -82,8 +82,8 @@ class GlobalExceptionHandler(
     fun handleBizException(e: BizException, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
         val errorMessage = """
             [에러]
-            message: ${e.log}
-            type: ${e.javaClass.simpleName}
+            Error Class: ${e.javaClass.simpleName}
+            ${e.log}
         """.trimIndent()
 
         bizNotificationClient.sendError(
@@ -101,8 +101,8 @@ class GlobalExceptionHandler(
     fun handleUncaughtException(e: Exception, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
         val errorMessage = """
             [에러]
-            message: ${e.message ?: "메세지 확인 불가. 체크 필요"}
-            type: ${e.javaClass.simpleName}
+            Error Class: ${e.javaClass.simpleName}
+            ${e.message ?: "메세지 확인 불가. 체크 필요"}
         """.trimIndent()
 
         logger.error(errorMessage)
