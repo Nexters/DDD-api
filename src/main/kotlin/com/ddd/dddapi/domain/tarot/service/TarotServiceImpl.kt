@@ -61,7 +61,10 @@ class TarotServiceImpl(
     override fun getTarotResult(tarotResultId: Long): TarotResultResponseDto {
         val tarotResult = tarotHelperService.getTarotResultOrThrow(tarotResultId)
         val tarotResultMessage = chatHelperService.getTarotResultMessageOrThrow(tarotResult)
-        return TarotResultResponseDto.of(tarotResult, tarotResultMessage.message)
+        val chatRoom = tarotResultMessage.chatRoom
+        val recentTarotQuestion = chatHelperService.getLatestUserTarotQuestionOrThrow(chatRoom, tarotResult)
+
+        return TarotResultResponseDto.of(tarotResult, recentTarotQuestion.message)
     }
 
     @Transactional
