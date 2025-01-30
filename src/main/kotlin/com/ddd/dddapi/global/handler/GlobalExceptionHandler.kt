@@ -80,15 +80,8 @@ class GlobalExceptionHandler(
      */
     @ExceptionHandler(BizException::class)
     fun handleBizException(e: BizException, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
-        val errorMessage = """
-            [에러]
-            Error Class: ${e.javaClass.simpleName}
-            ${e.log}
-        """.trimIndent()
-
-        bizNotificationClient.sendError(
-            createNotificationMessage(errorMessage, request.requestURI ?: "URI 확인 불가. 체크 필요")
-        )
+        val errorMessage = getErrorMessage(e, e.log)
+        handleErrorExtras(errorMessage, request)
         return ResponseEntity
             .status(e.errorCode.code)
             .body(DefaultResponse(e.errorCode.message))
@@ -99,19 +92,26 @@ class GlobalExceptionHandler(
      */
     @ExceptionHandler(Exception::class)
     fun handleUncaughtException(e: Exception, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
-        val errorMessage = """
-            [에러]
-            Error Class: ${e.javaClass.simpleName}
-            ${e.message ?: "메세지 확인 불가. 체크 필요"}
-        """.trimIndent()
-
-        logger.error(errorMessage)
-        bizNotificationClient.sendError(
-            createNotificationMessage(errorMessage, request.requestURI ?: "URI 확인 불가. 체크 필요")
-        )
+        val errorMessage = getErrorMessage(e, e.message ?: "알 수 없는 에러입니다.")
+        handleErrorExtras(errorMessage, request)
         return ResponseEntity
             .status(500)
             .body(DefaultResponse(errorMessage))
+    }
+
+    private fun handleErrorExtras(message: String, request: HttpServletRequest) {
+        logger.error(message)
+        bizNotificationClient.sendError(
+            createNotificationMessage(message, request.requestURI ?: "URI 확인 불가. 체크 필요")
+        )
+    }
+
+    private fun getErrorMessage(e: Exception, log: String): String {
+        return """
+            [에러]
+            Error Class: ${e.javaClass.simpleName}
+            $log
+        """.trimIndent()
     }
 
     private fun getURI(request: WebRequest): String {
