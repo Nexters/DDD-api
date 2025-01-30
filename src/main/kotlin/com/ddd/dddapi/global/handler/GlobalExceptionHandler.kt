@@ -101,7 +101,7 @@ class GlobalExceptionHandler(
     }
 
     private fun handleErrorExtras(message: String, request: HttpServletRequest) {
-        logger.error{ message }
+        logger.error(message)
         bizNotificationClient.sendError(
             createNotificationMessage(message, request.requestURI ?: "URI 확인 불가. 체크 필요")
         )
