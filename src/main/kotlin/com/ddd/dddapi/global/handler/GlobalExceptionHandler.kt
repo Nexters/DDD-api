@@ -6,6 +6,7 @@ import com.ddd.dddapi.common.extension.getRequestId
 import com.ddd.dddapi.common.extension.getRequestTime
 import com.ddd.dddapi.external.notification.client.BizNotificationClient
 import com.ddd.dddapi.external.notification.dto.DefaultNotificationMessage
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
@@ -100,7 +101,7 @@ class GlobalExceptionHandler(
     }
 
     private fun handleErrorExtras(message: String, request: HttpServletRequest) {
-        logger.error(message)
+        logger.error{ message }
         bizNotificationClient.sendError(
             createNotificationMessage(message, request.requestURI ?: "URI 확인 불가. 체크 필요")
         )

@@ -8,6 +8,7 @@ import com.ddd.dddapi.common.extension.getRequestTime
 import com.ddd.dddapi.external.notification.client.BizNotificationClient
 import com.ddd.dddapi.external.notification.dto.DefaultNotificationMessage
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -18,7 +19,6 @@ class ExceptionHandleFilter(
     private val objectMapper: ObjectMapper,
     private val bizNotificationClient: BizNotificationClient
 ): OncePerRequestFilter() {
-    private val log = LoggerFactory.getLogger(this.javaClass)!!
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -28,28 +28,34 @@ class ExceptionHandleFilter(
         try {
             filterChain.doFilter(request, response)
         } catch (e: BizException) {
-            val globalResponse = createGlobalResponse(e.log)
+            val errorMessage = getErrorMessage(e, e.log)
+            val globalResponse = createGlobalResponse(e.errorCode.message)
+            handleErrorExtras(errorMessage, request)
+
             response.status = e.errorCode.code
             response.writer.write(objectMapper.writeValueAsString(globalResponse))
         } catch (e: Exception) {
-            val errorMessage = createErrorMessage(e)
-            val globalResponse = createGlobalResponse(errorMessage)
-
-            log.error(errorMessage)
-            bizNotificationClient.sendError(
-                createNotificationMessage(errorMessage, request.requestURI ?: "URI 확인 불가. 체크 필요")
-            )
+            val errorMessage = getErrorMessage(e, e.message ?: "메세지 확인 불가. 체크 필요")
+            val globalResponse = createGlobalResponse(e.message ?: "알 수 없는 에러가 발생했습니다.")
+            handleErrorExtras(errorMessage, request)
 
             response.status = 500
             response.writer.write(objectMapper.writeValueAsString(globalResponse))
         }
     }
 
-    private fun createErrorMessage(e: Exception): String {
+    private fun handleErrorExtras(message: String, request: HttpServletRequest) {
+        logger.error{ message }
+        bizNotificationClient.sendError(
+            createNotificationMessage(message, request.requestURI ?: "URI 확인 불가. 체크 필요")
+        )
+    }
+
+    private fun getErrorMessage(e: Exception, log: String): String {
         return """
             [에러]
-            message: ${e.message ?: "메세지 확인 불가. 체크 필요"}
-            type: ${e.javaClass.simpleName}
+            Error Class: ${e.javaClass.simpleName}
+            $log
         """.trimIndent()
     }
 
