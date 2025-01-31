@@ -4,6 +4,7 @@ import com.ddd.dddapi.common.enums.MessageIntent
 import com.ddd.dddapi.common.enums.MessageType
 import com.ddd.dddapi.common.exception.BadRequestBizException
 import com.ddd.dddapi.common.exception.InternalServerErrorBizException
+import com.ddd.dddapi.common.extension.getRequestMetaData
 import com.ddd.dddapi.domain.chat.dto.*
 import com.ddd.dddapi.domain.chat.entity.TarotChatRoomEntity
 import com.ddd.dddapi.domain.chat.repository.TarotChatMessageRepository
@@ -15,12 +16,15 @@ import com.ddd.dddapi.domain.user.service.UserService
 import com.ddd.dddapi.domain.user.service.helper.UserHelperService
 import com.ddd.dddapi.external.ai.client.AiClient
 import com.ddd.dddapi.external.ai.dto.AiChatCommonRequestDto
+import com.ddd.dddapi.external.notification.client.BizNotificationClient
+import com.ddd.dddapi.external.notification.dto.DefaultNotificationMessage
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ChatServiceImpl(
     private val aiClient: AiClient,
+    private val bizNotificationClient: BizNotificationClient,
     private val userService: UserService,
     private val userHelperService: UserHelperService,
     private val tarotChatHelperService: ChatHelperService,
@@ -109,7 +113,7 @@ class ChatServiceImpl(
     ): InferredReplyChatMessage {
         val request = AiChatCommonRequestDto(chatRoom.id.toString(), inquiry.message)
         val replyMessage = when(inquiry.messageType) {
-            MessageType.USER_INVALID_QUESTION -> aiClient.chatInappropriate(request).answer
+            MessageType.USER_INVALID_QUESTION -> aiClient.chatInappropriate(request).answer.also { sendInvalidChatAlert(it) }
             MessageType.USER_FOLLOW_QUESTION,
             MessageType.USER_TAROT_QUESTION -> aiClient.chatTarotQuestion(request).answer
             MessageType.USER_NORMAL,
@@ -118,5 +122,17 @@ class ChatServiceImpl(
             else -> throw InternalServerErrorBizException("사용자 대화유형을 잘못 추론하였습니다.${inquiry.messageType}")
         }
         return InferredReplyChatMessage(replyMessage, inquiry.messageType.replyType())
+    }
+
+    private fun sendInvalidChatAlert(message: String) {
+        val requestMetadata = getRequestMetaData()
+        bizNotificationClient.sendInvalidQuestion(
+            DefaultNotificationMessage(
+                message = message,
+                requestId = requestMetadata.requestId,
+                requestTime = requestMetadata.requestTime,
+                requestUri = requestMetadata.requestUri
+            )
+        )
     }
 }

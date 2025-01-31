@@ -2,11 +2,13 @@ package com.ddd.dddapi.global.handler
 
 import com.ddd.dddapi.common.dto.DefaultResponse
 import com.ddd.dddapi.common.exception.BizException
+import com.ddd.dddapi.common.extension.alertMessage
 import com.ddd.dddapi.common.extension.getRequestId
 import com.ddd.dddapi.common.extension.getRequestTime
+import com.ddd.dddapi.common.extension.getRequestUri
 import com.ddd.dddapi.external.notification.client.BizNotificationClient
+import com.ddd.dddapi.external.notification.dto.BizNotificationType
 import com.ddd.dddapi.external.notification.dto.DefaultNotificationMessage
-import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
@@ -68,9 +70,8 @@ class GlobalExceptionHandler(
         request: WebRequest
     ): ResponseEntity<Any>? {
         val errorMessage = ex.message ?: "잘못된 요청입니다."
-        bizNotificationClient.sendError(
-            createNotificationMessage(errorMessage, getURI(request))
-        )
+        bizNotificationClient.sendError(createNotificationMessage(errorMessage))
+
         return ResponseEntity
             .status(500)
             .body(DefaultResponse(errorMessage))
@@ -81,8 +82,10 @@ class GlobalExceptionHandler(
      */
     @ExceptionHandler(BizException::class)
     fun handleBizException(e: BizException, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
-        val errorMessage = getErrorMessage(e, e.log)
-        handleErrorExtras(errorMessage, request)
+        val errorMessage = e.alertMessage(e.errorCode.code, e.log)
+        logger.warn(errorMessage)
+        bizNotificationClient.sendUsual(createNotificationMessage(errorMessage), BizNotificationType.INFO)
+
         return ResponseEntity
             .status(e.errorCode.code)
             .body(DefaultResponse(e.errorCode.message))
@@ -93,38 +96,21 @@ class GlobalExceptionHandler(
      */
     @ExceptionHandler(Exception::class)
     fun handleUncaughtException(e: Exception, request: HttpServletRequest): ResponseEntity<DefaultResponse> {
-        val errorMessage = getErrorMessage(e, e.message ?: "알 수 없는 에러입니다.")
-        handleErrorExtras(errorMessage, request)
+        val errorMessage = e.alertMessage(500)
+        logger.error(errorMessage)
+        bizNotificationClient.sendError(createNotificationMessage(errorMessage))
+
         return ResponseEntity
             .status(500)
             .body(DefaultResponse(errorMessage))
     }
 
-    private fun handleErrorExtras(message: String, request: HttpServletRequest) {
-        logger.error(message)
-        bizNotificationClient.sendError(
-            createNotificationMessage(message, request.requestURI ?: "URI 확인 불가. 체크 필요")
-        )
-    }
-
-    private fun getErrorMessage(e: Exception, log: String): String {
-        return """
-            [에러]
-            Error Class: ${e.javaClass.simpleName}
-            $log
-        """.trimIndent()
-    }
-
-    private fun getURI(request: WebRequest): String {
-        return request.getDescription(false).replace("uri=", "")
-    }
-
-    private fun createNotificationMessage(message: String, requestURI: String): DefaultNotificationMessage {
+    private fun createNotificationMessage(message: String): DefaultNotificationMessage {
         return DefaultNotificationMessage(
             message = message,
             requestId = getRequestId(),
             requestTime = getRequestTime(),
-            requestUri = requestURI
+            requestUri = getRequestUri()
         )
     }
 }
