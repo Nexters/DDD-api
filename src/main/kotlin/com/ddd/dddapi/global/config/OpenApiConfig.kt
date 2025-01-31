@@ -7,7 +7,6 @@ import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
-import org.slf4j.LoggerFactory
 import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -20,7 +19,6 @@ private const val USER_IDENTIFICATION_HEADER_NAME: String = "X-Guest-ID"
 
 @Configuration
 class OpenApiConfig {
-    private val log = LoggerFactory.getLogger(this.javaClass)!!
 
     @Bean
     fun openApi(): OpenAPI = OpenAPI()

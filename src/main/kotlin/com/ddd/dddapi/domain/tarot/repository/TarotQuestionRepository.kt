@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface TarotQuestionRepository: JpaRepository<TarotQuestionEntity, Long> {
     fun findByOrderByReferenceCountDesc(limit: Limit): List<TarotQuestionEntity>
+
+    fun findByQuestion(question: String): TarotQuestionEntity?
 }
