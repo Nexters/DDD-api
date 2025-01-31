@@ -85,6 +85,7 @@ class ChatServiceImpl(
     private fun addTarotQuestion(inquiry: InferredInquiryChatMessage) {
         if (inquiry.messageType != MessageType.USER_TAROT_QUESTION || inquiry.referenceQuestionId != null) return
         tarotQuestionRepository.findByQuestion(inquiry.message)
+            .firstOrNull()
             ?.let { it.referenceCount += 1 }
             ?: tarotQuestionRepository.save(TarotQuestionEntity(question = inquiry.message))
     }
