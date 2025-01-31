@@ -113,7 +113,8 @@ class ChatServiceImpl(
     ): InferredReplyChatMessage {
         val request = AiChatCommonRequestDto(chatRoom.id.toString(), inquiry.message)
         val replyMessage = when(inquiry.messageType) {
-            MessageType.USER_INVALID_QUESTION -> aiClient.chatInappropriate(request).answer.also { sendInvalidChatAlert(it) }
+            MessageType.USER_INVALID_QUESTION -> aiClient.chatInappropriate(request).answer
+                .also { sendInvalidChatAlert("${inquiry.message}\n\n$it") }
             MessageType.USER_FOLLOW_QUESTION,
             MessageType.USER_TAROT_QUESTION -> aiClient.chatTarotQuestion(request).answer
             MessageType.USER_NORMAL,
