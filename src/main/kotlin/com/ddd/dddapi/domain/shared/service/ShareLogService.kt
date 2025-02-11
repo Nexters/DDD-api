@@ -1,4 +1,4 @@
-package com.ddd.dddapi.domain.common.service
+package com.ddd.dddapi.domain.shared.service
 
 interface ShareLogService {
     fun saveShareLog(tarotResultId: Long)

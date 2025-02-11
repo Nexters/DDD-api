@@ -1,5 +1,6 @@
 package com.ddd.dddapi.global.config
 
+import com.ddd.dddapi.common.util.JwtUtil
 import com.ddd.dddapi.external.notification.client.BizNotificationClient
 import com.ddd.dddapi.global.filter.ExceptionHandleFilter
 import com.ddd.dddapi.global.filter.TraceFilter
@@ -16,9 +17,11 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class WebMvcConfig: WebMvcConfigurer {
+class WebMvcConfig(
+    private val jwtUtil: JwtUtil
+): WebMvcConfigurer {
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        resolvers.add(RequestUserArgumentResolver())
+        resolvers.add(RequestUserArgumentResolver(jwtUtil))
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {

@@ -1,7 +1,7 @@
 package com.ddd.dddapi.external.social.client
 
+import com.ddd.dddapi.common.enums.LoginType
 import com.ddd.dddapi.common.util.JwtUtil
-import com.ddd.dddapi.external.social.dto.SocialType
 import com.ddd.dddapi.external.social.dto.SocialUserInfo
 import com.ddd.dddapi.external.social.properties.AppleProperties
 import io.jsonwebtoken.Claims
@@ -46,7 +46,7 @@ class AppleClient(
 
     private fun createSocialUserInfo(claims: Claims): SocialUserInfo =
         SocialUserInfo(
-            socialType = SocialType.APPLE,
+            socialType = LoginType.APPLE,
             socialId = claims.subject as String,
         )
 }
