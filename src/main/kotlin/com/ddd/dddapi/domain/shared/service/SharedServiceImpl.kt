@@ -1,12 +1,12 @@
-package com.ddd.dddapi.domain.common.service
+package com.ddd.dddapi.domain.shared.service
 
-import com.ddd.dddapi.domain.common.entity.ShareLogEntity
-import com.ddd.dddapi.domain.common.repository.ShareLogRepository
+import com.ddd.dddapi.domain.shared.entity.ShareLogEntity
+import com.ddd.dddapi.domain.shared.repository.ShareLogRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class CommonServiceImpl(
+class SharedServiceImpl(
     private val shareLogRepository: ShareLogRepository
 ): ShareLogService {
     @Transactional

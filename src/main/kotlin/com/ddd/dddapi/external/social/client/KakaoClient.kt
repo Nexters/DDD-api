@@ -1,7 +1,7 @@
 package com.ddd.dddapi.external.social.client
 
+import com.ddd.dddapi.common.enums.LoginType
 import com.ddd.dddapi.common.util.JwtUtil
-import com.ddd.dddapi.external.social.dto.SocialType
 import com.ddd.dddapi.external.social.dto.SocialUserInfo
 import com.ddd.dddapi.external.social.properties.KakaoAuthProperties
 import io.jsonwebtoken.Claims
@@ -56,7 +56,7 @@ class KakaoClient(
 
     private fun createSocialUserInfo(claims: Claims): SocialUserInfo =
         SocialUserInfo(
-            socialType = SocialType.KAKAO,
+            socialType = LoginType.KAKAO,
             socialId = claims.subject as String,
         )
 }
