@@ -19,7 +19,7 @@ import java.util.*
 import javax.crypto.spec.SecretKeySpec
 
 private const val USER_TOKEN_SUBJECT = "token"
-private const val JWT_CLAIM_USER_ID = "userId"
+private const val JWT_CLAIM_USER_KEY = "userKey"
 private const val JWT_CLAIM_ROLE = "role"
 
 @Component
@@ -48,7 +48,7 @@ class JwtUtil(
 
     fun generateServiceToken(jwtUserInfo: JwtUserInfo): String {
         return Jwts.builder()
-            .claim(JWT_CLAIM_USER_ID, jwtUserInfo.userKey)
+            .claim(JWT_CLAIM_USER_KEY, jwtUserInfo.userKey)
             .claim(JWT_CLAIM_ROLE, jwtUserInfo.role.name)
             .setSubject(USER_TOKEN_SUBJECT)
             .setIssuer(jwtProperties.issuer)
@@ -69,7 +69,7 @@ class JwtUtil(
             .body
             .let {
                 JwtUserInfo(
-                    userKey = it.get(key = JWT_CLAIM_USER_ID) as String,
+                    userKey = it.get(key = JWT_CLAIM_USER_KEY) as String,
                     role = enumValueOf(
                         it.get(key = JWT_CLAIM_ROLE) as? String ?: ServiceRole.GUEST.name),
                 )
