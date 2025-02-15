@@ -6,6 +6,7 @@ import com.ddd.dddapi.common.exception.BadRequestBizException
 import com.ddd.dddapi.common.exception.InternalServerErrorBizException
 import com.ddd.dddapi.common.extension.getRequestMetaData
 import com.ddd.dddapi.domain.chat.dto.*
+import com.ddd.dddapi.domain.chat.entity.TarotChatMessageEntity
 import com.ddd.dddapi.domain.chat.entity.TarotChatRoomEntity
 import com.ddd.dddapi.domain.chat.repository.TarotChatMessageRepository
 import com.ddd.dddapi.domain.chat.repository.TarotChatRoomRepository
@@ -36,11 +37,14 @@ class ChatServiceImpl(
     override fun createChatRoom(tempUserKey: String): ChatRoomCreateResponseDto {
         val user = userService.getOrCreateUser(tempUserKey)
         val newChatRoom = TarotChatRoomEntity(user = user)
+        val welcomeChatMessage = TarotChatMessageEntity.createWelcomeChatMessage(newChatRoom)
+
         tarotChatRoomRepository.save(newChatRoom)
+        tarotChatMessageRepository.save(welcomeChatMessage)
 
         return ChatRoomCreateResponseDto(
             roomId = newChatRoom.id,
-            message = null
+            message = ChatMessageResponseDto.of(welcomeChatMessage)
         )
     }
 
