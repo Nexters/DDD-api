@@ -4,10 +4,7 @@ import com.ddd.dddapi.common.annotation.RequestUser
 import com.ddd.dddapi.common.annotation.UserKeyIgnored
 import com.ddd.dddapi.common.dto.RequestUserInfo
 import com.ddd.dddapi.domain.chat.dto.ChatMessageResponseDto
-import com.ddd.dddapi.domain.tarot.dto.RecommendTarotQuestionListResponseDto
-import com.ddd.dddapi.domain.tarot.dto.TarotHistoryListResponseDto
-import com.ddd.dddapi.domain.tarot.dto.TarotResultResponseDto
-import com.ddd.dddapi.domain.tarot.dto.TarotSelectRequestDto
+import com.ddd.dddapi.domain.tarot.dto.*
 import com.ddd.dddapi.domain.tarot.service.TarotHistoryService
 import com.ddd.dddapi.domain.tarot.service.TarotService
 import io.swagger.v3.oas.annotations.Operation
@@ -46,6 +43,15 @@ class TarotController(
     @GetMapping("/question/recommends")
     fun getRecommendTarotQuestions(): RecommendTarotQuestionListResponseDto {
         return tarotService.getRecommendTarotQuestions()
+    }
+
+    @Operation(summary = "추천 꼬리 질문들 가져오기(4개)", description = "AI가 추천하는 꼬리 질문들을 가져옵니다.")
+    @UserKeyIgnored
+    @GetMapping("/question/follow")
+    fun getFollowTarotQuestions(
+        request: FollowTarotQuestionRequestDto
+    ): FollowTarotQuestionListResponseDto {
+        return tarotService.getFollowTarotQuestions(request.chatRoomId)
     }
 
     @Operation(summary = "타로 히스토리 리스트", description = "본인이 받은 타로 히스토리 리스트를 가져옵니다.")
