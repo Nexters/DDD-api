@@ -57,6 +57,20 @@ class AiClientV1(
         )
     }
 
+    override fun tarotQuestionSummary(request: AiTarotQuestionSummaryRequestDto): AiTarotQuestionSummaryResponseDto {
+        return requestPostToAiServer<AiTarotQuestionSummaryRequestDto, AiTarotQuestionSummaryResponseDto>(
+            aiServerProperties.tarotQuestionSummary,
+            request
+        )
+    }
+
+    override fun tarotFollowQuestion(request: AiTarotFollowQuestionRequestDto): AiTarotFollowQuestionResponseDto {
+        return requestPostToAiServer<AiTarotFollowQuestionRequestDto, AiTarotFollowQuestionResponseDto>(
+            aiServerProperties.tarotFollowQuestion,
+            request
+        )
+    }
+
     private inline fun <reified Req : Any, reified Res : Any> requestPostToAiServer(path: String, request: Req): Res {
         val response = restClient.post()
             .uri(path)

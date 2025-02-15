@@ -12,4 +12,5 @@ data class AiTarotResultResponseDto(
     val analysis: String,
     val summaryOfAdvice: String,
     val advice: String,
+    val comprehensiveSummary: String
 )

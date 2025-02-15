@@ -3,7 +3,6 @@ package com.ddd.dddapi.global.resolver
 import com.ddd.dddapi.common.annotation.RequestUser
 import com.ddd.dddapi.common.dto.RequestUserInfo
 import com.ddd.dddapi.common.enums.ServiceRole
-import com.ddd.dddapi.common.exception.UnauthorizedBizException
 import com.ddd.dddapi.common.util.JwtUtil
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
@@ -27,7 +26,7 @@ class RequestUserArgumentResolver(
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
-    ): Any {
+    ): Any? {
         webRequest.getHeader(guestUserHeader)
             ?.let {
                 return RequestUserInfo(it, role = ServiceRole.GUEST)
@@ -39,6 +38,6 @@ class RequestUserArgumentResolver(
                 return RequestUserInfo(userKey = serviceToken.userKey, role = serviceToken.role)
             }
 
-        throw UnauthorizedBizException("헤더에 유저 식별값이 없습니다.")
+        return null
     }
 }
