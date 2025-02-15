@@ -75,6 +75,7 @@ class TarotServiceImpl(
         )
     }
 
+    @Transactional
     override fun getFollowTarotQuestions(chatRoomId: Long): FollowTarotQuestionListResponseDto {
         val chatRoom = chatHelperService.getChatRoomOrThrow(chatRoomId)
         val tarotFollowQuestions = aiClient.tarotFollowQuestion(
