@@ -52,7 +52,6 @@ class TarotHistoryServiceImpl(
             user = user,
             chatRoom = chatRoom,
             questionSummary = tarotQuestionSummary.summarizedQuestion,
-            selectedTarot = tarotResult.tarot,
             tarotResult = tarotResult
         )
 

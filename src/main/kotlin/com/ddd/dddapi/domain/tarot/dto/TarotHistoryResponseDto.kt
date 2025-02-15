@@ -18,7 +18,7 @@ data class TarotHistoryResponseDto(
             return TarotHistoryResponseDto(
                 id = history.id,
                 questionSummary = history.questionSummary,
-                selectedTarot = history.selectedTarot.name,
+                selectedTarot = history.tarotResult.tarot.name,
                 tarotResultId = history.tarotResult.id,
                 chatRoomId = history.chatRoom.id,
                 createdAt = history.createdAt ?: LocalDateTime.now()

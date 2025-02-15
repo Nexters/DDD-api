@@ -31,11 +31,6 @@ class TarotHistoryEntity(
     @Column(name = "question_summary", nullable = false, columnDefinition = "VARCHAR(255)")
     val questionSummary: String,
 
-    @Comment("유저가 선택한 타로카드(Enum으로 관리)")
-    @Enumerated(EnumType.STRING)
-    @Column(name = "selected_tarot", nullable = true, columnDefinition = "VARCHAR(50)")
-    val selectedTarot: TarotInfo,
-
     @Comment("타로 결과 ID")
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "tarot_result_id", nullable = true)
