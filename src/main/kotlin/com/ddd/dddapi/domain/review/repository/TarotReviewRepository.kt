@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface TarotReviewRepository: JpaRepository<TarotReviewEntity, Long> {
+    fun existsByUserIdAndTarotResultId(userId: Long, tarotResultId: Long): Boolean
 }
