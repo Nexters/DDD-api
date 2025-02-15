@@ -46,9 +46,3 @@ class TarotReviewEntity(
     @JoinColumn(name = "user_id", nullable = false)
     val user: UserEntity,
 ) : BaseEntity()
-
-// grade
-// result
-// user
-// audit
-// review 했는지 확인하는 api
