@@ -32,6 +32,7 @@ class TarotController(
     @UserKeyIgnored
     @GetMapping("/result/{resultId}")
     fun getTarotResult(
+        @RequestUser requestUser: RequestUserInfo?,
         @PathVariable resultId: Long
     ): TarotResultResponseDto {
         return tarotService.getTarotResult(resultId)
