@@ -8,6 +8,7 @@ data class TarotHistoryResponseDto(
     val questionSummary: String,
     val selectedTarot: String,
     val tarotResultId: Long,
+    val chatRoomId: Long,
     val createdAt: LocalDateTime
 ) {
     companion object {
@@ -19,6 +20,7 @@ data class TarotHistoryResponseDto(
                 questionSummary = history.questionSummary,
                 selectedTarot = history.selectedTarot.name,
                 tarotResultId = history.tarotResult.id,
+                chatRoomId = history.chatRoom.id,
                 createdAt = history.createdAt ?: LocalDateTime.now()
             )
         }
