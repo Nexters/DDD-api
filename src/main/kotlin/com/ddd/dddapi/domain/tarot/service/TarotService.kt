@@ -7,6 +7,6 @@ import com.ddd.dddapi.domain.tarot.dto.TarotSelectRequestDto
 
 interface TarotService {
     fun selectTarot(tempUserKey: String, request: TarotSelectRequestDto): ChatMessageResponseDto
-    fun getTarotResult(tarotResultId: Long): TarotResultResponseDto
+    fun getTarotResult(userKey: String?, tarotResultId: Long): TarotResultResponseDto
     fun getRecommendTarotQuestions(): RecommendTarotQuestionListResponseDto
 }

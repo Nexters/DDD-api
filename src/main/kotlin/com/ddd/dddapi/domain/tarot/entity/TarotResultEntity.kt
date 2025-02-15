@@ -45,4 +45,8 @@ class TarotResultEntity(
     @Lob
     @Column(name = "advice_description", nullable = false, columnDefinition = "TEXT")
     val adviceDescription: String,
+
+    @Lob
+    @Column(name = "comprehensive_summary", nullable = false, columnDefinition = "TEXT")
+    val comprehensiveSummary: String
 ): BaseEntity()

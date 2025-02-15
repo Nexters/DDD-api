@@ -35,7 +35,7 @@ class TarotController(
         @RequestUser requestUser: RequestUserInfo?,
         @PathVariable resultId: Long
     ): TarotResultResponseDto {
-        return tarotService.getTarotResult(resultId)
+        return tarotService.getTarotResult(requestUser?.userKey, resultId)
     }
 
     @Operation(summary = "추천 타로 질문들 가져오기(4개)", description = "AI가 추천하는 타로 질문들을 가져옵니다.")

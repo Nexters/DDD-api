@@ -58,13 +58,14 @@ class TarotServiceImpl(
     }
 
     @Transactional
-    override fun getTarotResult(tarotResultId: Long): TarotResultResponseDto {
+    override fun getTarotResult(userKey: String?, tarotResultId: Long): TarotResultResponseDto {
         val tarotResult = tarotHelperService.getTarotResultOrThrow(tarotResultId)
         val tarotResultMessage = chatHelperService.getTarotResultMessageOrThrow(tarotResult)
         val chatRoom = tarotResultMessage.chatRoom
         val recentTarotQuestion = chatHelperService.getLatestUserTarotQuestionOrThrow(chatRoom, tarotResult)
+        val isTarotResultOwner = chatRoom.user.userKey == userKey
 
-        return TarotResultResponseDto.of(tarotResult, recentTarotQuestion.message)
+        return TarotResultResponseDto.of(tarotResult, recentTarotQuestion.message, isTarotResultOwner)
     }
 
     @Transactional
@@ -88,6 +89,7 @@ class TarotServiceImpl(
             answerSummary = tarotResultInfo.summaryOfAnalysis,
             answerDescription = tarotResultInfo.analysis,
             adviceSummary = tarotResultInfo.summaryOfAdvice,
-            adviceDescription = tarotResultInfo.advice
+            adviceDescription = tarotResultInfo.advice,
+            comprehensiveSummary = tarotResultInfo.comprehensiveSummary
         )
 }
