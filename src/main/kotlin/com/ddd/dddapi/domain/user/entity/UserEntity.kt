@@ -28,4 +28,8 @@ class UserEntity(
     @Comment("소셜 로그인 시 해당 소셜 내 유저 식별자")
     @Column(name = "social_id", nullable = true, columnDefinition = "VARCHAR(255)")
     val socialId: String? = null,
-): BaseEntity()
+): BaseEntity() {
+    fun isOwning(userKey: String?): Boolean {
+        return this.userKey == userKey
+    }
+}

@@ -1,6 +1,6 @@
 package com.ddd.dddapi.domain.tarot.dto
 
-data class TarotHistoryRequestDto(
+data class TarotHistoryEventDto(
     val userKey: String,
     val tarotResultId: Long
 )
