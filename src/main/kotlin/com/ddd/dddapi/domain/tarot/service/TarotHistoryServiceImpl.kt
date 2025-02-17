@@ -2,7 +2,7 @@ package com.ddd.dddapi.domain.tarot.service
 
 import com.ddd.dddapi.domain.chat.service.helper.ChatHelperService
 import com.ddd.dddapi.domain.tarot.dto.TarotHistoryListResponseDto
-import com.ddd.dddapi.domain.tarot.dto.TarotHistoryRequestDto
+import com.ddd.dddapi.domain.tarot.dto.TarotHistoryEventDto
 import com.ddd.dddapi.domain.tarot.entity.TarotHistoryEntity
 import com.ddd.dddapi.domain.tarot.repository.TarotHistoryRepository
 import com.ddd.dddapi.domain.tarot.service.helper.TarotHelperService
@@ -29,17 +29,18 @@ class TarotHistoryServiceImpl(
     @Transactional
     override fun getTarotHistoryList(userKey: String): TarotHistoryListResponseDto {
         val user = userHelperService.getUserOrThrow(userKey)
-        val historyList = tarotHistoryRepository.findAllByUser(user)
+        val historyList = tarotHistoryRepository.findAllByUserOrderByCreatedAtDesc(user)
         return TarotHistoryListResponseDto.of(historyList)
     }
 
     @Async(TAROT_HISTORY_EXECUTOR_NAME)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    override fun saveTarotHistory(request: TarotHistoryRequestDto) {
+    @Transactional
+    override fun saveTarotHistory(request: TarotHistoryEventDto) {
         val user = userHelperService.getUserOrThrow(request.userKey)
         val tarotResult = tarotHelperService.getTarotResultOrThrow(request.tarotResultId)
         val tarotResultMessage = chatHelperService.getTarotResultMessageOrThrow(tarotResult)
+
         val chatRoom = tarotResultMessage.chatRoom
         val recentTarotQuestion = chatHelperService.getLatestUserTarotQuestionOrThrow(chatRoom, tarotResult)
         val tarotQuestionSummary = aiClient.tarotQuestionSummary(

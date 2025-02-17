@@ -15,14 +15,15 @@ import com.ddd.dddapi.external.ai.client.AiClient
 import com.ddd.dddapi.external.ai.dto.AiTarotFollowQuestionRequestDto
 import com.ddd.dddapi.external.ai.dto.AiTarotResultRequestDto
 import com.ddd.dddapi.external.ai.dto.AiTarotResultResponseDto
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Limit
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TarotServiceImpl(
+    private val eventPublisher: ApplicationEventPublisher,
     private val aiClient: AiClient,
-    private val tarotHistoryService: TarotHistoryService,
     private val userHelperService: UserHelperService,
     private val chatHelperService: ChatHelperService,
     private val tarotHelperService: TarotHelperService,
@@ -47,9 +48,8 @@ class TarotServiceImpl(
         tarotResultRepository.save(tarotResult)
         tarotChatMessageRepository.save(replyChatMessage)
 
-        tarotHistoryService.saveTarotHistory(
-            TarotHistoryRequestDto(user.userKey, tarotResult.id)
-        )
+        // tarotHistory 이벤트
+        eventPublisher.publishEvent(TarotHistoryEventDto(user.userKey, tarotResult.id))
 
         return ChatMessageResponseDto.of(replyChatMessage)
     }
@@ -58,9 +58,10 @@ class TarotServiceImpl(
     override fun getTarotResult(userKey: String?, tarotResultId: Long): TarotResultResponseDto {
         val tarotResult = tarotHelperService.getTarotResultOrThrow(tarotResultId)
         val tarotResultMessage = chatHelperService.getTarotResultMessageOrThrow(tarotResult)
+
         val chatRoom = tarotResultMessage.chatRoom
         val recentTarotQuestion = chatHelperService.getLatestUserTarotQuestionOrThrow(chatRoom, tarotResult)
-        val isTarotResultOwner = chatRoom.user.userKey == userKey
+        val isTarotResultOwner = chatRoom.user.isOwning(userKey)
 
         return TarotResultResponseDto.of(tarotResult, recentTarotQuestion.message, isTarotResultOwner)
     }

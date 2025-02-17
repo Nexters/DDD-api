@@ -12,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional
 @HelperService
 @Transactional(readOnly = true)
 class TarotHelperService(
-    private val tarotQuestionRepository: TarotQuestionRepository,
     private val tarotResultRepository: TarotResultRepository,
-    private val tarotHistoryRepository: TarotHistoryRepository,
 ) {
     fun getTarotResultOrThrow(tarotResultId: Long): TarotResultEntity {
         return tarotResultRepository.findByIdOrNull(tarotResultId)
