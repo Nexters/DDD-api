@@ -35,7 +35,7 @@ class TarotHistoryServiceImpl(
 
     @Async(TAROT_HISTORY_EXECUTOR_NAME)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     override fun saveTarotHistory(request: TarotHistoryEventDto) {
         val user = userHelperService.getUserOrThrow(request.userKey)
         val tarotResult = tarotHelperService.getTarotResultOrThrow(request.tarotResultId)
