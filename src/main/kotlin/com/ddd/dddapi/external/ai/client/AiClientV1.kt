@@ -5,6 +5,7 @@ import com.ddd.dddapi.external.ai.dto.*
 import com.ddd.dddapi.external.ai.properties.AiServerProperties
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpRequest
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.http.client.ClientHttpResponse
@@ -76,22 +77,23 @@ class AiClientV1(
             .uri(path)
             .body(request)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) { _, res ->
-                throw ExternalServerErrorBizException(responseLog("4XX Error", res))
+            .onStatus(HttpStatusCode::is4xxClientError) { req, res ->
+                throw ExternalServerErrorBizException(responseLog("4XX Error", req, res))
             }
-            .onStatus(HttpStatusCode::is5xxServerError) { _, res ->
-                throw ExternalServerErrorBizException(responseLog("5XX Error", res))
+            .onStatus(HttpStatusCode::is5xxServerError) { req, res ->
+                throw ExternalServerErrorBizException(responseLog("5XX Error", req, res))
             }
             .toEntity(Res::class.java)
 
         return response.body ?: throw ExternalServerErrorBizException("Failed to request to ai server")
     }
 
-    private fun responseLog(errorType: String, response: ClientHttpResponse): String {
+    private fun responseLog(errorType: String, request: HttpRequest, response: ClientHttpResponse): String {
         try {
             val responseBody = String(response.body.readAllBytes(), StandardCharsets.UTF_8)
             return """
                 AI 서버 응답 에러: [$errorType]
+                요청 : ${request.uri}, ${request.method}, ${request.attributes}
                 Status Code: ${response.statusCode}
                 Headers: ${response.headers}
                 Body: $responseBody
