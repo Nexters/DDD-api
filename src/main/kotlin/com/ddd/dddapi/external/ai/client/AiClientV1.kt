@@ -36,6 +36,10 @@ class AiClientV1(
         .build()
 
     override fun chatClassification(request: AiChatCommonRequestDto): AiChatClassifyResponseDto {
+        requestPostToAiServer<AiTestRequestDto, String>(
+            "/test",
+            AiTestRequestDto("test")
+        )
         return requestPostToAiServer<AiChatCommonRequestDto, AiChatClassifyResponseDto>(
             aiServerProperties.classifyChatPath,
             request
