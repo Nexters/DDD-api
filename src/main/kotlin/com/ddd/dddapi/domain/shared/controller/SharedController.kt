@@ -1,11 +1,10 @@
-package com.ddd.dddapi.domain.common.controller
+package com.ddd.dddapi.domain.shared.controller
 
 import com.ddd.dddapi.common.annotation.RequestUser
 import com.ddd.dddapi.common.dto.DefaultResponse
 import com.ddd.dddapi.common.dto.RequestUserInfo
-import com.ddd.dddapi.domain.common.dto.ShareLoggingRequestDto
-import com.ddd.dddapi.domain.common.service.CommonServiceImpl
-import com.ddd.dddapi.domain.common.service.ShareLogService
+import com.ddd.dddapi.domain.shared.dto.ShareLoggingRequestDto
+import com.ddd.dddapi.domain.shared.service.ShareLogService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -15,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/v1/common")
+@RequestMapping("/v1/shared")
 @Tag(name = "00. Common API")
-class CommonController(
+class SharedController(
     private val commonService: ShareLogService
 ) {
     @Operation(summary = "질문 공유하기 로깅", description = "공유하기 시 로깅용 API")

@@ -70,6 +70,17 @@ class TarotChatMessageEntity(
                 tarotResult = tarotResult
             )
         }
+
+        fun createWelcomeChatMessage(
+            chatRoom: TarotChatRoomEntity
+        ): TarotChatMessageEntity {
+            return TarotChatMessageEntity(
+                chatRoom = chatRoom,
+                messageType = MessageType.SYSTEM_HELLO,
+                senderType = MessageSender.SYSTEM,
+                message = "안녕 집사 🐾\n따뜻한 마룻바닥이 그리운 겨울 밤이야\n오늘은 어떤게 궁금해서 찾아왔어냥?"
+            )
+        }
     }
 }
 

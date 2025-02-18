@@ -11,5 +11,7 @@ data class AiServerProperties @ConstructorBinding constructor(
     val generalChatPath: String,
     val inappropriateChatPath: String,
     val tarotQuestionChatPath: String,
-    val tarotResultPath: String
+    val tarotResultPath: String,
+    val tarotQuestionSummary: String,
+    val tarotFollowQuestion: String
 )

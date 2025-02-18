@@ -33,7 +33,16 @@ class AiLocalClient: AiClient {
             summaryOfAnalysis = "질문 분석 요약",
             analysis = "질문 분석 설명",
             summaryOfAdvice = "조언 요약",
-            advice = "조언 설명"
+            advice = "조언 설명",
+            comprehensiveSummary = "종합 요약"
         )
+    }
+
+    override fun tarotQuestionSummary(request: AiTarotQuestionSummaryRequestDto): AiTarotQuestionSummaryResponseDto {
+        return AiTarotQuestionSummaryResponseDto("요약한 질문")
+    }
+
+    override fun tarotFollowQuestion(request: AiTarotFollowQuestionRequestDto): AiTarotFollowQuestionResponseDto {
+        return AiTarotFollowQuestionResponseDto(listOf("타로 질문에 대한 후속 질문"))
     }
 }

@@ -18,7 +18,31 @@ interface TarotChatMessageRepository: JpaRepository<TarotChatMessageEntity, Long
         LIMIT 1
         """
     )
-    fun findLatestUserTarotQuestion(roomId: Long, messageType: MessageType = MessageType.USER_TAROT_QUESTION): TarotChatMessageEntity?
+    fun findLatestUserTarotQuestion(
+        roomId: Long,
+        messageType: MessageType = MessageType.USER_TAROT_QUESTION
+    ): TarotChatMessageEntity?
+
+    @Query(
+        """
+        SELECT m
+        FROM TarotChatMessageEntity m
+        WHERE m.chatRoom = :room
+          AND m.messageType = :messageType
+          AND m.createdAt < (
+              SELECT r.createdAt
+              FROM TarotChatMessageEntity r
+              WHERE r.tarotResult = :result
+          )
+        ORDER BY m.createdAt DESC
+        LIMIT 1
+        """
+    )
+    fun findLatestUserTarotQuestionBeforeResult(
+        room: TarotChatRoomEntity,
+        result: TarotResultEntity,
+        messageType: MessageType = MessageType.USER_TAROT_QUESTION
+    ): TarotChatMessageEntity?
 
     fun findByTarotResult(tarotResult: TarotResultEntity): TarotChatMessageEntity?
 }

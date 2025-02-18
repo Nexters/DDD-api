@@ -33,6 +33,11 @@ class ChatHelperService(
             ?: throw InternalServerErrorBizException("타로 결과 ID를 담은 메세지를 찾을 수 없습니다. [tarotResultId: ${tarotResult.id}]")
     }
 
+    fun getLatestUserTarotQuestionOrThrow(room: TarotChatRoomEntity, result: TarotResultEntity): TarotChatMessageEntity {
+        return tarotChatMessageRepository.findLatestUserTarotQuestionBeforeResult(room, result)
+            ?: throw BadRequestBizException("현재 채팅방에 타로 질문이 존재하지 않습니다. [roomId: ${room.id}]")
+    }
+
     fun getLatestUserTarotQuestionOrThrow(roomId: Long): TarotChatMessageEntity {
         return tarotChatMessageRepository.findLatestUserTarotQuestion(roomId)
             ?: throw BadRequestBizException("현재 채팅방에 타로 질문이 존재하지 않습니다. [roomId: $roomId]")

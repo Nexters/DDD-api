@@ -9,6 +9,7 @@ data class DiscordMessage(
 data class DiscordEmbeddedMessage(
     val title: String,
     val description: String = "",
+    val color: String,
     val fields: List<DiscordEmbeddedField>
 )
 

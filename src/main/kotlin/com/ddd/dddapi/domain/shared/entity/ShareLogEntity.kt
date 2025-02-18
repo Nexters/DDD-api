@@ -1,5 +1,6 @@
-package com.ddd.dddapi.domain.common.entity
+package com.ddd.dddapi.domain.shared.entity
 
+import com.ddd.dddapi.domain.common.entity.BaseEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 

@@ -27,4 +27,14 @@ interface AiClient {
      * 타로 결과
      */
     fun chatTarotResult(request: AiTarotResultRequestDto): AiTarotResultResponseDto
+
+    /**
+     * 타로 질문 요약
+     */
+    fun tarotQuestionSummary(request: AiTarotQuestionSummaryRequestDto): AiTarotQuestionSummaryResponseDto
+
+    /**
+     * 타로 후속 질문
+     */
+    fun tarotFollowQuestion(request: AiTarotFollowQuestionRequestDto): AiTarotFollowQuestionResponseDto
 }

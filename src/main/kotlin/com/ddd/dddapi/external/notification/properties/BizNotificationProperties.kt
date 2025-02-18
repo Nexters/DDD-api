@@ -7,4 +7,5 @@ import org.springframework.boot.context.properties.bind.ConstructorBinding
 data class BizNotificationProperties @ConstructorBinding constructor(
     val errorMessage: String,
     val invalidQuestion: String,
+    val etcMessage: String,
 )

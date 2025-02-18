@@ -20,4 +20,15 @@ class AsyncConfig {
         executor.initialize()
         return executor
     }
+
+    @Bean(name = ["tarotHistoryExecutor"])
+    fun tarotHistoryExecutor(): Executor {
+        val executor = ThreadPoolTaskExecutor()
+        executor.corePoolSize = 5
+        executor.maxPoolSize = 10
+        executor.queueCapacity = 25
+        executor.setThreadNamePrefix("TarotHistoryExecutor-")
+        executor.initialize()
+        return executor
+    }
 }

@@ -8,5 +8,5 @@ import io.swagger.v3.oas.annotations.media.Schema
 @Schema(hidden = true)
 annotation class RequestUser(
     @Schema(hidden = true)
-    val value: String = "userKey"
+    val value: String = "X-Guest-ID"
 )

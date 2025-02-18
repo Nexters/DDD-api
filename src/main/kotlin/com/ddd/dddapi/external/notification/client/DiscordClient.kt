@@ -21,10 +21,19 @@ class DiscordClient(
         .build()
 
     @Async(NOTIFICATION_EXECUTOR_NAME)
+    override fun sendUsual(message: DefaultNotificationMessage, type: BizNotificationType) {
+        restClient.post()
+            .uri(notificationProperties.etcMessage)
+            .body(createDiscordRequest(message, type))
+            .retrieve()
+            .body(Any::class.java)
+    }
+
+    @Async(NOTIFICATION_EXECUTOR_NAME)
     override fun sendError(message: DefaultNotificationMessage) {
         restClient.post()
             .uri(notificationProperties.errorMessage)
-            .body(createDiscordRequest(BizNotificationType.ERROR, message))
+            .body(createDiscordRequest(message, BizNotificationType.ERROR))
             .retrieve()
             .body(Any::class.java)
     }
@@ -34,16 +43,17 @@ class DiscordClient(
     override fun sendInvalidQuestion(message: DefaultNotificationMessage) {
         restClient.post()
             .uri(notificationProperties.invalidQuestion)
-            .body(createDiscordRequest(BizNotificationType.INVALID_QUESTION, message))
+            .body(createDiscordRequest(message, BizNotificationType.INVALID_QUESTION))
             .retrieve()
             .body(Any::class.java)
     }
 
-    private fun createDiscordRequest(type: BizNotificationType, message: DefaultNotificationMessage): DiscordMessage {
+    private fun createDiscordRequest(message: DefaultNotificationMessage, type: BizNotificationType): DiscordMessage {
         return DiscordMessage(
             embeds = listOf(
                 DiscordEmbeddedMessage(
                     title = type.title,
+                    color = type.color,
                     fields = listOf(
                         DiscordEmbeddedField(name = "Request Id", value = "◾️ ${message.requestId}"),
                         DiscordEmbeddedField(name = "Request Time", value = "◾️ ${message.requestTime}"),
