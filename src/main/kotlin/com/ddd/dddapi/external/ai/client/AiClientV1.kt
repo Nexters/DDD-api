@@ -20,11 +20,11 @@ class AiClientV1(
     private val aiServerProperties: AiServerProperties
 ): AiClient {
     private final val loggingInterceptor = ClientHttpRequestInterceptor { request, body, execution ->
-        "Request: ${request.method} ${request.uri} - Body: ${String(body)}".also { println(it) }
+        val requestInfo = "Request: ${request.method} ${request.uri} - Body: ${String(body)}. Headers: ${request.headers}"
 
         val response: ClientHttpResponse = execution.execute(request, body)
         if (!response.statusCode.is2xxSuccessful) {
-            throw ExternalServerErrorBizException(responseLog("Error", response, "Request: ${request.method} ${request.uri} - Body: ${String(body)}"))
+            throw ExternalServerErrorBizException(responseLog("Error", response, requestInfo))
         }
 
         response
