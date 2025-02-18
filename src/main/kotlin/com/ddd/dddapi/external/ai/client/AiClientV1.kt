@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpRequest
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
+import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
@@ -18,9 +19,20 @@ import java.nio.charset.StandardCharsets
 class AiClientV1(
     private val aiServerProperties: AiServerProperties
 ): AiClient {
+    private final val loggingInterceptor = ClientHttpRequestInterceptor { request, body, execution ->
+        "Request: ${request.method} ${request.uri} - Body: ${String(body)}".also { println(it) }
+
+        val response: ClientHttpResponse = execution.execute(request, body)
+        if (!response.statusCode.is2xxSuccessful) {
+            throw ExternalServerErrorBizException(responseLog("Error", response, "Request: ${request.method} ${request.uri} - Body: ${String(body)}"))
+        }
+
+        response
+    }
     private val restClient = RestClient.builder()
         .baseUrl(aiServerProperties.domain + aiServerProperties.basePath)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .requestInterceptor(loggingInterceptor)
         .build()
 
     override fun chatClassification(request: AiChatCommonRequestDto): AiChatClassifyResponseDto {
@@ -78,22 +90,22 @@ class AiClientV1(
             .body(request)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError) { req, res ->
-                throw ExternalServerErrorBizException(responseLog("4XX Error", req, res))
+                throw ExternalServerErrorBizException(responseLog("4XX Error", res))
             }
             .onStatus(HttpStatusCode::is5xxServerError) { req, res ->
-                throw ExternalServerErrorBizException(responseLog("5XX Error", req, res))
+                throw ExternalServerErrorBizException(responseLog("5XX Error", res))
             }
             .toEntity(Res::class.java)
 
         return response.body ?: throw ExternalServerErrorBizException("Failed to request to ai server")
     }
 
-    private fun responseLog(errorType: String, request: HttpRequest, response: ClientHttpResponse): String {
+    private fun responseLog(errorType: String, response: ClientHttpResponse, requestInfo: String = ""): String {
         try {
             val responseBody = String(response.body.readAllBytes(), StandardCharsets.UTF_8)
             return """
+                ${requestInfo.ifEmpty { "" }}
                 AI 서버 응답 에러: [$errorType]
-                요청 : ${request.uri}, ${request.method}, ${request.attributes}
                 Status Code: ${response.statusCode}
                 Headers: ${response.headers}
                 Body: $responseBody
