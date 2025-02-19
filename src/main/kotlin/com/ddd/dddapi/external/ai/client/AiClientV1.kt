@@ -19,27 +19,18 @@ import java.nio.charset.StandardCharsets
 class AiClientV1(
     private val aiServerProperties: AiServerProperties
 ): AiClient {
-    private final val loggingInterceptor = ClientHttpRequestInterceptor { request, body, execution ->
-        val requestInfo = "Request: ${request.method} ${request.uri} - Body: ${String(body)}. Headers: ${request.headers}"
-
-        val response: ClientHttpResponse = execution.execute(request, body)
-        if (!response.statusCode.is2xxSuccessful) {
-            throw ExternalServerErrorBizException(responseLog("Error", response, requestInfo))
-        }
-
-        response
-    }
     private val restClient = RestClient.builder()
         .baseUrl(aiServerProperties.domain + aiServerProperties.basePath)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-        .requestInterceptor(loggingInterceptor)
+        .requestInterceptor { request, body, execution ->
+            val requestInfo = "Request: ${request.method} ${request.uri} - Body: ${String(body)}. Headers: ${request.headers}"
+            val response: ClientHttpResponse = execution.execute(request, body)
+            if (!response.statusCode.is2xxSuccessful) throw ExternalServerErrorBizException(responseLog("Error", response, requestInfo))
+            response
+        }
         .build()
 
     override fun chatClassification(request: AiChatCommonRequestDto): AiChatClassifyResponseDto {
-        requestPostToAiServer<AiTestRequestDto, String>(
-            "/test",
-            AiTestRequestDto("test")
-        )
         return requestPostToAiServer<AiChatCommonRequestDto, AiChatClassifyResponseDto>(
             aiServerProperties.classifyChatPath,
             request
@@ -93,12 +84,6 @@ class AiClientV1(
             .uri(path)
             .body(request)
             .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) { req, res ->
-                throw ExternalServerErrorBizException(responseLog("4XX Error", res))
-            }
-            .onStatus(HttpStatusCode::is5xxServerError) { req, res ->
-                throw ExternalServerErrorBizException(responseLog("5XX Error", res))
-            }
             .toEntity(Res::class.java)
 
         return response.body ?: throw ExternalServerErrorBizException("Failed to request to ai server")
