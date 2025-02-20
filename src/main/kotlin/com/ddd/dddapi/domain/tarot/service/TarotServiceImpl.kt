@@ -68,8 +68,8 @@ class TarotServiceImpl(
 
     @Transactional
     override fun getRecommendTarotQuestions(): RecommendTarotQuestionListResponseDto {
-        val questionList = tarotQuestionRepository.findByOrderByReferenceCountDesc(Limit.of(10))
-            .shuffled().take(4)
+        val questionList = tarotQuestionRepository.findByOrderByReferenceCountDesc(Limit.of(20))
+            .shuffled().take(10)
         return RecommendTarotQuestionListResponseDto(
             questionList.map { RecommendTarotQuestionResponseDto.of(it) }
         )

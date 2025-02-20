@@ -5,10 +5,7 @@ import com.ddd.dddapi.external.ai.dto.*
 import com.ddd.dddapi.external.ai.properties.AiServerProperties
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpRequest
-import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
-import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
