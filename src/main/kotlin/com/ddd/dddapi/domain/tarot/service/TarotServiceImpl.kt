@@ -7,7 +7,9 @@ import com.ddd.dddapi.domain.chat.repository.TarotChatMessageRepository
 import com.ddd.dddapi.domain.chat.service.helper.ChatHelperService
 import com.ddd.dddapi.domain.tarot.dto.*
 import com.ddd.dddapi.domain.tarot.entity.TarotResultEntity
+import com.ddd.dddapi.domain.tarot.entity.TarotResultFollowQuestionEntity
 import com.ddd.dddapi.domain.tarot.repository.TarotQuestionRepository
+import com.ddd.dddapi.domain.tarot.repository.TarotResultFollowQuestionRepository
 import com.ddd.dddapi.domain.tarot.repository.TarotResultRepository
 import com.ddd.dddapi.domain.tarot.service.helper.TarotHelperService
 import com.ddd.dddapi.domain.user.service.helper.UserHelperService
@@ -29,7 +31,8 @@ class TarotServiceImpl(
     private val tarotHelperService: TarotHelperService,
     private val tarotQuestionRepository: TarotQuestionRepository,
     private val tarotResultRepository: TarotResultRepository,
-    private val tarotChatMessageRepository: TarotChatMessageRepository
+    private val tarotChatMessageRepository: TarotChatMessageRepository,
+    private val tarotResultFollowQuestionRepository: TarotResultFollowQuestionRepository,
 ): TarotService {
     @Transactional
     override fun selectTarot(tempUserKey: String, request: TarotSelectRequestDto): ChatMessageResponseDto {
@@ -76,14 +79,28 @@ class TarotServiceImpl(
     }
 
     @Transactional
-    override fun getFollowTarotQuestions(chatRoomId: Long): FollowTarotQuestionListResponseDto {
-        val chatRoom = chatHelperService.getChatRoomOrThrow(chatRoomId)
-        val tarotFollowQuestions = aiClient.tarotFollowQuestion(
-            AiTarotFollowQuestionRequestDto(chatRoom.id.toString())
-        )
+    override fun getFollowTarotQuestions(request: FollowTarotQuestionRequestDto): FollowTarotQuestionListResponseDto {
+        val chatRoom = chatHelperService.getChatRoomOrThrow(request.chatRoomId)
+
+        val tarotFollowQuestions = getFollowQuestions(request.chatRoomId, request.tarotResultId)
+
         return FollowTarotQuestionListResponseDto(
-            tarotFollowQuestions.followUpQuestion
+            tarotFollowQuestions
         )
+    }
+
+    private fun getFollowQuestions(chatRoomId: Long, tarotResultId: Long): List<String> {
+        val chatRoom = chatHelperService.getChatRoomOrThrow(chatRoomId)
+        val tarotResult = tarotHelperService.getTarotResultOrThrow(tarotResultId)
+
+        return tarotHelperService.getTarotResultFollowQuestionsOrNull(tarotResultId)
+                ?: aiClient.tarotFollowQuestion( AiTarotFollowQuestionRequestDto(chatRoom.id.toString()))
+                    .followUpQuestion
+                    .apply {
+                        tarotResultFollowQuestionRepository.save(
+                            TarotResultFollowQuestionEntity.create(tarotResult, this)
+                        )
+                    }
     }
 
     private fun createTarotResultEntity(
