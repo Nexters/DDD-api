@@ -51,7 +51,7 @@ class TarotController(
     fun getFollowTarotQuestions(
         request: FollowTarotQuestionRequestDto
     ): FollowTarotQuestionListResponseDto {
-        return tarotService.getFollowTarotQuestions(request.chatRoomId)
+        return tarotService.getFollowTarotQuestions(request)
     }
 
     @Operation(summary = "타로 히스토리 리스트", description = "본인이 받은 타로 히스토리 리스트를 가져옵니다.")
