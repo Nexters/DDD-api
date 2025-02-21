@@ -16,5 +16,5 @@ CREATE TABLE tarot_result_follow_questions (
    CONSTRAINT fk_tarot_result_follow_questions_tarot_result
        FOREIGN KEY (tarot_result_id) REFERENCES tarotnyang.tarot_results(id)
            ON DELETE CASCADE
-);
+)
     comment '타로결과에 대한 추천 꼬리질문';
