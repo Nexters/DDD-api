@@ -13,7 +13,8 @@ class TarotQuestionEntity(
     @Column(name = "id", nullable = false)
     val id: Long = 0,
 
-    @Column(name = "question", nullable = false)
+    @Lob
+    @Column(name = "question", nullable = false, columnDefinition = "TEXT")
     val question: String,
 
     @Comment("해당 질문을 사용한 횟수")
